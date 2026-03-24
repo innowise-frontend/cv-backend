@@ -1,0 +1,11 @@
+type SkillCategory {
+  id: ID!
+  name: String!
+  order: Int!
+  parent: SkillCategory
+  children: [SkillCategory!]!
+}
+
+type Query {
+  skillCategories: [SkillCategory!]!
+}

@@ -1,0 +1,33 @@
+type Skill {
+  id: ID!
+  created_at: String!
+  name: String!
+  category: SkillCategory
+  category_name: String
+  category_parent_name: String
+}
+
+type Query {
+  skills: [Skill!]!
+}
+
+input CreateSkillInput {
+  name: String!
+  categoryId: ID
+}
+
+input UpdateSkillInput {
+  skillId: ID!
+  name: String!
+  categoryId: ID
+}
+
+input DeleteSkillInput {
+  skillId: ID!
+}
+
+type Mutation {
+  createSkill(skill: CreateSkillInput!): Skill!
+  updateSkill(skill: UpdateSkillInput!): Skill!
+  deleteSkill(skill: DeleteSkillInput!): DeleteResult!
+}

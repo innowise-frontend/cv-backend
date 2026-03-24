@@ -1,0 +1,29 @@
+name: innowise
+
+services:
+  cv_postgres:
+    image: postgres:16.1
+    container_name: cv_postgres
+    restart: unless-stopped
+    env_file:
+      - .env.cv_postgres
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - cv_postgres:/var/lib/postgresql/data
+
+  cv_backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: cv_backend
+    depends_on:
+      - cv_postgres
+    env_file:
+      - .env.cv_backend
+    ports:
+      - "3001:3001"
+
+volumes:
+  cv_postgres:
+    external: false

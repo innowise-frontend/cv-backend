@@ -1,0 +1,45 @@
+type Project {
+  id: ID!
+  created_at: String!
+  name: String!
+  internal_name: String!
+  domain: String!
+  start_date: String!
+  end_date: String
+  description: String!
+  environment: [String!]!
+}
+
+type Query {
+  projects: [Project!]!
+  project(projectId: ID!): Project!
+}
+
+input CreateProjectInput {
+  name: String!
+  domain: String!
+  start_date: String!
+  end_date: String
+  description: String!
+  environment: [String!]!
+}
+
+input UpdateProjectInput {
+  projectId: ID!
+  name: String!
+  domain: String!
+  start_date: String!
+  end_date: String
+  description: String!
+  environment: [String!]!
+}
+
+input DeleteProjectInput {
+  projectId: ID!
+}
+
+type Mutation {
+  createProject(project: CreateProjectInput!): Project!
+  updateProject(project: UpdateProjectInput!): Project!
+  deleteProject(project: DeleteProjectInput!): DeleteResult!
+}

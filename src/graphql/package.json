@@ -1,0 +1,10 @@
+{
+  "name": "cv-graphql",
+  "version": "2.13.2",
+  "types": "./index.ts",
+  "description": "Public backend GraphQL API types.",
+  "keywords": [
+    "graphql",
+    "types"
+  ]
+}

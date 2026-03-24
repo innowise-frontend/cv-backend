@@ -1,0 +1,36 @@
+input AuthInput {
+  email: String!
+  password: String!
+}
+
+type AuthResult {
+  user: User!
+  access_token: String!
+  refresh_token: String!
+}
+
+type Query {
+  login(auth: AuthInput!): AuthResult!
+}
+
+input ForgotPasswordInput {
+  email: String!
+}
+
+input ResetPasswordInput {
+  newPassword: String!
+}
+
+type UpdateTokenResult {
+  access_token: String!
+  refresh_token: String!
+}
+
+scalar Void
+
+type Mutation {
+  signup(auth: AuthInput!): AuthResult!
+  forgotPassword(auth: ForgotPasswordInput!): Void
+  resetPassword(auth: ResetPasswordInput!): Void
+  updateToken: UpdateTokenResult!
+}

@@ -1,0 +1,28 @@
+type Department {
+  id: ID!
+  created_at: String!
+  name: String!
+}
+
+type Query {
+  departments: [Department!]!
+}
+
+input CreateDepartmentInput {
+  name: String!
+}
+
+input UpdateDepartmentInput {
+  departmentId: ID!
+  name: String!
+}
+
+input DeleteDepartmentInput {
+  departmentId: ID!
+}
+
+type Mutation {
+  createDepartment(department: CreateDepartmentInput!): Department!
+  updateDepartment(department: UpdateDepartmentInput!): Department!
+  deleteDepartment(department: DeleteDepartmentInput!): DeleteResult!
+}

@@ -1,0 +1,46 @@
+enum UserRole {
+  Employee
+  Admin
+}
+
+type User {
+  id: ID!
+  created_at: String!
+  email: String!
+  is_verified: Boolean!
+  profile: Profile!
+  cvs: [Cv!]
+  department: Department
+  department_name: String
+  position: Position
+  position_name: String
+  role: UserRole!
+}
+
+type Query {
+  users: [User!]!
+  user(userId: ID!): User!
+}
+
+input CreateUserInput {
+  auth: AuthInput!
+  profile: CreateProfileInput!
+  cvsIds: [String!]!
+  departmentId: ID
+  positionId: ID
+  role: UserRole!
+}
+
+input UpdateUserInput {
+  userId: ID!
+  cvsIds: [String!]
+  departmentId: ID
+  positionId: ID
+  role: UserRole
+}
+
+type Mutation {
+  createUser(user: CreateUserInput!): User!
+  updateUser(user: UpdateUserInput!): User!
+  deleteUser(userId: ID!): DeleteResult!
+}

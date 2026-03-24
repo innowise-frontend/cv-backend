@@ -1,0 +1,29 @@
+type Position {
+  id: ID!
+  created_at: String!
+  name: String!
+}
+
+type Query {
+  positions: [Position!]!
+  position(id: ID!): Position!
+}
+
+input CreatePositionInput {
+  name: String!
+}
+
+input UpdatePositionInput {
+  positionId: ID!
+  name: String!
+}
+
+input DeletePositionInput {
+  positionId: ID!
+}
+
+type Mutation {
+  createPosition(position: CreatePositionInput!): Position!
+  updatePosition(position: UpdatePositionInput!): Position!
+  deletePosition(position: DeletePositionInput!): DeleteResult!
+}
