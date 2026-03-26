@@ -48,7 +48,7 @@ POSTGRES_PASSWORD="pass"
 6. Pull the latest Docker image locally:
 
 ```sh
-pnpm run image:pull
+pnpm run image:up
 ```
 
 7. In pgAdmin or DBeaver, create a new server:
