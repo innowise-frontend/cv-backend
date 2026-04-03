@@ -90,12 +90,11 @@ export class AuthService {
     const user = await this.usersService.signup({ email, password });
     const tokens = await this.signJwt(user);
 
-    // TODO: Update email sending
-    // const url = `${origin}/verify-email`;
+    const url = `${origin}/verify-email`;
 
-    // await this.mailService.sendVerificationEmail(email, url).catch(() => {
-    //   throw failedToSendEmail;
-    // });
+    await this.mailService.sendVerificationEmail(email, url).catch(() => {
+      throw failedToSendEmail;
+    });
 
     return { user, ...tokens };
   }
@@ -117,7 +116,7 @@ export class AuthService {
     const token = await this.jwtService.signAsync(payload, { expiresIn: "10m" });
     const url = `${origin}/reset-password?token=${token}`;
 
-    await this.mailService.sendResetPasswordEmail(email, url).catch((error) => {
+    await this.mailService.sendResetPasswordEmail(email, url).catch(() => {
       throw failedToSendEmail;
     });
 
