@@ -8,7 +8,7 @@ import { CreateLanguageInput, DeleteLanguageInput, UpdateLanguageInput } from "s
 export class LanguagesService {
   constructor(
     @InjectRepository(LanguageModel)
-    private readonly languageRepository: Repository<LanguageModel>
+    private readonly languageRepository: Repository<LanguageModel>,
   ) {}
 
   findAll() {

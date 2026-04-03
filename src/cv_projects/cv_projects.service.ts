@@ -14,7 +14,7 @@ export class CvProjectsService {
     @InjectRepository(CvProjectModel)
     private readonly cvProjectRepository: Repository<CvProjectModel>,
     @Inject(forwardRef(() => ProjectsService))
-    private readonly projectsService: ProjectsService
+    private readonly projectsService: ProjectsService,
   ) {}
 
   findOneByIdAndJoin(cvId: string) {

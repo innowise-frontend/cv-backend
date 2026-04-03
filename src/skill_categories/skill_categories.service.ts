@@ -7,7 +7,7 @@ import { SkillCategoryModel } from "./model/skill_category.model";
 export class SkillCategoriesService {
   constructor(
     @InjectRepository(SkillCategoryModel)
-    private readonly skillCategoriesRepository: Repository<SkillCategoryModel>
+    private readonly skillCategoriesRepository: Repository<SkillCategoryModel>,
   ) {}
 
   findAll() {

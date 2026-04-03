@@ -8,7 +8,7 @@ import { CvModel } from "src/cvs/model/cv.model";
 export class CvSkillsService {
   constructor(
     @InjectRepository(CvModel)
-    private readonly cvRepository: Repository<CvModel>
+    private readonly cvRepository: Repository<CvModel>,
   ) {}
 
   findOneById(cvId: string) {

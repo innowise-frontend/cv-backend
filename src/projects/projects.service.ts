@@ -8,7 +8,7 @@ import { CreateProjectInput, UpdateProjectInput, DeleteProjectInput } from "../g
 export class ProjectsService {
   constructor(
     @InjectRepository(ProjectModel)
-    private readonly projectsRepository: Repository<ProjectModel>
+    private readonly projectsRepository: Repository<ProjectModel>,
   ) {}
 
   findAll() {

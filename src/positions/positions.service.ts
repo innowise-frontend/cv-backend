@@ -8,7 +8,7 @@ import { CreatePositionInput, UpdatePositionInput, DeletePositionInput } from "s
 export class PositionsService {
   constructor(
     @InjectRepository(PositionModel)
-    private readonly positionRepository: Repository<PositionModel>
+    private readonly positionRepository: Repository<PositionModel>,
   ) {}
 
   findAll() {

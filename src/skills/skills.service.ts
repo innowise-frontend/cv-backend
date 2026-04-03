@@ -11,7 +11,7 @@ export class SkillsService {
   constructor(
     @InjectRepository(SkillModel)
     private readonly skillsRepository: Repository<SkillModel>,
-    private readonly skillCategoriesService: SkillCategoriesService
+    private readonly skillCategoriesService: SkillCategoriesService,
   ) {}
 
   findAll() {

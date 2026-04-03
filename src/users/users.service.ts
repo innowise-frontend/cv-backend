@@ -18,7 +18,7 @@ export class UsersService {
     private readonly cvsService: CvsService,
     private readonly profileService: ProfileService,
     private readonly departmentsService: DepartmentsService,
-    private readonly positionsService: PositionsService
+    private readonly positionsService: PositionsService,
   ) {}
 
   findAll() {

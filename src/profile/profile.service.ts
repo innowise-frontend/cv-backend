@@ -22,7 +22,7 @@ export class ProfileService {
   constructor(
     @InjectRepository(ProfileModel)
     private readonly profileRepository: Repository<ProfileModel>,
-    private readonly cloudService: CloudService
+    private readonly cloudService: CloudService,
   ) {}
 
   findOneById(userId: string) {

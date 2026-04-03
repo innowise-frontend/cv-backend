@@ -28,7 +28,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
   ) {}
 
   private async validatePassword({ email, password }: AuthInput) {

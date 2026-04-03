@@ -11,7 +11,7 @@ export class CvsService {
     @InjectRepository(CvModel)
     private readonly cvRepository: Repository<CvModel>,
     @Inject(forwardRef(() => UsersService))
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
   ) {}
 
   findAll() {

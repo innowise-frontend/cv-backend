@@ -8,7 +8,7 @@ import { CreateDepartmentInput, DeleteDepartmentInput, UpdateDepartmentInput } f
 export class DepartmentsService {
   constructor(
     @InjectRepository(DepartmentModel)
-    private readonly departmentRepository: Repository<DepartmentModel>
+    private readonly departmentRepository: Repository<DepartmentModel>,
   ) {}
 
   findAll() {

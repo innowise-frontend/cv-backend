@@ -12,7 +12,7 @@ export class MailService {
     @InjectRepository(MailModel)
     private readonly mailRepository: Repository<MailModel>,
     private readonly mailerService: MailerService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
   ) {}
 
   findOneByEmail(email: string) {
