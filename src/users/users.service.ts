@@ -1,13 +1,19 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable, BadRequestException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { hash } from "bcrypt";
+import { compare, hash } from "bcrypt";
 import { UserModel } from "./model/user.model";
 import { CreateUserInput, UpdateUserInput, AuthInput } from "src/graphql";
 import { CvsService } from "src/cvs/cvs.service";
 import { ProfileService } from "src/profile/profile.service";
 import { DepartmentsService } from "src/departments/departments.service";
 import { PositionsService } from "src/positions/positions.service";
+import { ChangePasswordDto } from "./dto/change-password.dto";
+
+const oldPasswordSameNewPassword = new BadRequestException({ message: "Old password is the same as the new password" });
+const userNotFound = new BadRequestException({ message: "User not found" });
+const oldPasswordIncorrect = new BadRequestException({ message: "Old password is incorrect" });
+const confirmPasswordMismatch = new BadRequestException({ message: "Confirm password mismatch" });
 
 @Injectable()
 export class UsersService {
@@ -60,6 +66,31 @@ export class UsersService {
   async verifyUser(email: string) {
     const user = await this.findOneByEmail(email);
     user.is_verified = true;
+    return this.userRepository.save(user);
+  }
+
+  async changePassword(userId: string, { oldPassword, newPassword, confirmPassword }: ChangePasswordDto) {
+
+    if (oldPassword === newPassword) {
+      throw oldPasswordSameNewPassword;
+    }
+
+    const user = await this.findOneById(userId);
+
+    if (!user) {
+      throw userNotFound
+    }
+
+    if (!(await compare(oldPassword, user.password))) {
+      throw oldPasswordIncorrect;
+    }
+
+    if (newPassword !== confirmPassword) {
+      throw confirmPasswordMismatch;
+    }
+
+    user.password = await hash(newPassword, 10);
+
     return this.userRepository.save(user);
   }
 
