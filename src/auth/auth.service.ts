@@ -19,6 +19,8 @@ import { JwtPayload } from "./strategies/access_token.strategy";
 import { randomBytesAsync } from "src/app/util/random_bytes_async";
 
 const invalidCredentials = new BadRequestException({ message: "Invalid credentials" });
+const oldPasswordIncorrect = new BadRequestException({ message: "Old password is incorrect" });
+const confirmPasswordMismatch = new BadRequestException({ message: "Confirm password mismatch" });
 const userAlreadyExists = new BadRequestException({ message: "User already exists" });
 const failedToSendEmail = new ServiceUnavailableException({ message: "Failed to send email" });
 const actionExpired = new UnauthorizedException({ message: "Action expired" });
@@ -123,10 +125,20 @@ export class AuthService {
     return;
   }
 
-  async resetPassword({ newPassword }: ResetPasswordInput, token: string) {
+  async resetPassword({ oldPassword, newPassword, confirmPassword }: ResetPasswordInput, token: string) {
     const { email } = await this.jwtService.verifyAsync<JwtPayload>(token).catch(() => {
       throw actionExpired;
     });
+
+    const user = await this.validatePassword({ email, password: oldPassword });
+
+    if (!user) {
+      throw oldPasswordIncorrect;
+    }
+
+    if (newPassword !== confirmPassword) {
+      throw confirmPasswordMismatch;
+    }
 
     await this.usersService.updatePassword(email, newPassword);
 

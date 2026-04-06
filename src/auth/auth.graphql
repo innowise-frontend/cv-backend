@@ -18,7 +18,9 @@ input ForgotPasswordInput {
 }
 
 input ResetPasswordInput {
+  oldPassword: String!
   newPassword: String!
+  confirmPassword: String!
 }
 
 type UpdateTokenResult {
