@@ -292,6 +292,12 @@ export interface UpdateUserInput {
     role?: Nullable<UserRole>;
 }
 
+export interface ChangePasswordInput {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}
+
 export interface DeleteResult {
     affected: number;
 }
@@ -367,6 +373,7 @@ export interface IMutation {
     createUser(user: CreateUserInput): User | Promise<User>;
     updateUser(user: UpdateUserInput): User | Promise<User>;
     deleteUser(userId: string): DeleteResult | Promise<DeleteResult>;
+    changePassword(args: ChangePasswordInput): User | Promise<User>;
 }
 
 export interface CvProject {

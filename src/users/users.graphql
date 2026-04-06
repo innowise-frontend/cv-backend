@@ -39,8 +39,15 @@ input UpdateUserInput {
   role: UserRole
 }
 
+input ChangePasswordInput {
+  oldPassword: String!
+  newPassword: String!
+  confirmPassword: String!
+}
+
 type Mutation {
   createUser(user: CreateUserInput!): User!
   updateUser(user: UpdateUserInput!): User!
   deleteUser(userId: ID!): DeleteResult!
+  changePassword(args: ChangePasswordInput!): User!
 }
