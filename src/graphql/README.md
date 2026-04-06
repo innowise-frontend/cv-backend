@@ -1,8 +1,4 @@
-## cv-node generated types
-
-### Playground
-
-https://cv-project-js.inno.ws/api/graphql
+## cv-builder generated types
 
 ### Query
 
