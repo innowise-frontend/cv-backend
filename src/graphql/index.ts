@@ -352,6 +352,7 @@ export interface IMutation {
     updateLanguage(language: UpdateLanguageInput): Language | Promise<Language>;
     deleteLanguage(language: DeleteLanguageInput): DeleteResult | Promise<DeleteResult>;
     verifyMail(mail: VerifyMailInput): Nullable<Void> | Promise<Nullable<Void>>;
+    sendVerification(email: string): Nullable<Void> | Promise<Nullable<Void>>;
     createPosition(position: CreatePositionInput): Position | Promise<Position>;
     updatePosition(position: UpdatePositionInput): Position | Promise<Position>;
     deletePosition(position: DeletePositionInput): DeleteResult | Promise<DeleteResult>;
