@@ -308,29 +308,13 @@ export interface AuthResult {
     refresh_token: string;
 }
 
-export interface IQuery {
-    login(auth: AuthInput): AuthResult | Promise<AuthResult>;
-    cvs(): Cv[] | Promise<Cv[]>;
-    cv(cvId: string): Cv | Promise<Cv>;
-    departments(): Department[] | Promise<Department[]>;
-    languages(): Nullable<Language>[] | Promise<Nullable<Language>[]>;
-    positions(): Position[] | Promise<Position[]>;
-    position(id: string): Position | Promise<Position>;
-    profile(userId: string): Profile | Promise<Profile>;
-    projects(): Project[] | Promise<Project[]>;
-    project(projectId: string): Project | Promise<Project>;
-    skillCategories(): SkillCategory[] | Promise<SkillCategory[]>;
-    skills(): Skill[] | Promise<Skill[]>;
-    users(): User[] | Promise<User[]>;
-    user(userId: string): User | Promise<User>;
-}
-
 export interface UpdateTokenResult {
     access_token: string;
     refresh_token: string;
 }
 
 export interface IMutation {
+    login(auth: AuthInput): AuthResult | Promise<AuthResult>;
     signup(auth: AuthInput): AuthResult | Promise<AuthResult>;
     forgotPassword(auth: ForgotPasswordInput): Nullable<Void> | Promise<Nullable<Void>>;
     resetPassword(auth: ResetPasswordInput): Nullable<Void> | Promise<Nullable<Void>>;
@@ -401,6 +385,23 @@ export interface Cv {
     projects?: Nullable<CvProject[]>;
     skills: SkillMastery[];
     languages: LanguageProficiency[];
+}
+
+export interface IQuery {
+    cvs(): Cv[] | Promise<Cv[]>;
+    cv(cvId: string): Cv | Promise<Cv>;
+    departments(): Department[] | Promise<Department[]>;
+    languages(): Nullable<Language>[] | Promise<Nullable<Language>[]>;
+    positions(): Position[] | Promise<Position[]>;
+    position(id: string): Position | Promise<Position>;
+    me(): Profile | Promise<Profile>;
+    profile(userId: string): Profile | Promise<Profile>;
+    projects(): Project[] | Promise<Project[]>;
+    project(projectId: string): Project | Promise<Project>;
+    skillCategories(): SkillCategory[] | Promise<SkillCategory[]>;
+    skills(): Skill[] | Promise<Skill[]>;
+    users(): User[] | Promise<User[]>;
+    user(userId: string): User | Promise<User>;
 }
 
 export interface Department {
