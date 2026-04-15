@@ -445,6 +445,7 @@ export interface Profile {
     avatar?: Nullable<string>;
     skills: SkillMastery[];
     languages: LanguageProficiency[];
+    role?: Nullable<UserRole>;
 }
 
 export interface Project {

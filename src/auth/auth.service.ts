@@ -125,7 +125,7 @@ export class AuthService {
   }
 
   async resetPassword({ newPassword, confirmPassword }: ResetPasswordInput, token: string) {
-    const { email } = await this.jwtService.verifyAsync<JwtPayload>(token).catch(() => {
+    const { email } = await this.jwtService.verifyAsync(token).catch(() => {
       throw actionExpired;
     });
 
