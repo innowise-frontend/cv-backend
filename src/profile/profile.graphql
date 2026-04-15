@@ -10,6 +10,7 @@ type Profile {
 }
 
 type Query {
+  me: Profile!
   profile(userId: ID!): Profile!
 }
 

@@ -110,13 +110,16 @@ CHROME_WS=wss://chrome.browserless.io?token=YOUR_TOKEN
 ```
 
 Important:
-    - `token` is a secret; do not share it.
-    - If the token is leaked, rotate/regenerate it in the Browserless dashboard.
+   - `token` is a secret; do not share it.
+   - If the token is leaked, rotate/regenerate it in the Browserless dashboard.
 
 12. Configure SMTP in `.env` (email sending):
-    - Enable 2FA (two-factor authentication) on your Google account (Use your own email address, not the Innowise email address).
-    - Create an App Password: [Google App Passwords](https://myaccount.google.com/apppasswords). You will get a 16-character password (often shown in four groups), e.g. `abcd efgh ijkl mnop` — use it without spaces in `SMTP_URL` instead of `APP_PASSWORD`.
-    - Set:
+   - Enable 2FA (two-factor authentication) on your Google account (use your own email address, not the Innowise email address).
+   - Create an app password in [Google App Passwords](https://myaccount.google.com/apppasswords).
+     You will get a 16-character password (often shown in four groups), for example:
+     `abcd efgh ijkl mnop`.
+   - Use that password without spaces in `SMTP_URL` instead of `APP_PASSWORD`.
+   - Set:
 
 ```sh
 SMTP_URL=smtp://YOUR_EMAIL@gmail.com:APP_PASSWORD@smtp.gmail.com:587
@@ -124,7 +127,7 @@ MAIL_FROM="anything you like"
 ```
 
 Important:
-    - Gmail free accounts are limited to roughly 500 emails per day; messages may occasionally land in spam.
+   - Gmail free accounts are limited to roughly 500 emails per day; messages may occasionally land in spam.
 
 13. Example `.env.cv_backend` values:
 
@@ -141,10 +144,12 @@ SMTP_URL="smtp://YOUR_EMAIL@gmail.com:APP_PASSWORD@smtp.gmail.com:587"
 ```
 
 Validation checklist:
-    - Image upload should work.
-    - PDF export (`exportPdf`) should return a base64 string.
-    - After `forgotPassword`, the forgot-password email with the reset link should arrive; after signup, the verification email with the OTP should arrive and `verifyMail` should succeed with that code (check spam if messages do not appear in the inbox).
+   - Image upload should work.
+   - PDF export (`exportPdf`) should return a base64 string.
+   - After `forgotPassword`, the reset-link email should arrive.
+   - After signup, the verification email with the OTP should arrive, and `verifyMail` should succeed with that code.
+   - Check spam if messages do not appear in the inbox.
 
 Note:
-    - Free plans from all services are usually enough for internship.
+   - Free plans from all services are usually enough for internship projects.
 

@@ -9,10 +9,6 @@ type AuthResult {
   refresh_token: String!
 }
 
-type Query {
-  login(auth: AuthInput!): AuthResult!
-}
-
 input ForgotPasswordInput {
   email: String!
 }
@@ -30,6 +26,7 @@ type UpdateTokenResult {
 scalar Void
 
 type Mutation {
+  login(auth: AuthInput!): AuthResult!
   signup(auth: AuthInput!): AuthResult!
   forgotPassword(auth: ForgotPasswordInput!): Void
   resetPassword(auth: ResetPasswordInput!): Void
