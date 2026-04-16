@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ProfileModel } from "./model/profile.model";
@@ -16,12 +16,17 @@ import {
   DeleteAvatarInput,
   DeleteProfileInput,
 } from "src/graphql";
+import { UserModel } from "src/users/model/user.model";
+
+const profileNotFound = new NotFoundException("Profile not found");
+const userNotFound = new NotFoundException("User not found");
 
 @Injectable()
 export class ProfileService {
   constructor(
     @InjectRepository(ProfileModel)
     private readonly profileRepository: Repository<ProfileModel>,
+    private readonly userRepository: Repository<UserModel>,
     private readonly cloudService: CloudService,
   ) {}
 
@@ -29,6 +34,31 @@ export class ProfileService {
     return this.profileRepository.findOne({
       where: { id: userId },
     });
+  }
+
+  async me(userId: string) {
+    const profile = await this.profileRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!profile) {
+      throw profileNotFound;
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw userNotFound;
+    }
+
+    return {
+      ...profile,
+      role: user.role,
+      email: user.email,
+      is_verified: user.is_verified,
+    };
   }
 
   async createProfile({ first_name, last_name }: CreateProfileInput) {

@@ -22,7 +22,7 @@ export class ProfileResolver {
 
   @Query("me")
   me(@GetUserId() userId: string) {
-    return this.profileService.findOneById(userId);
+    return this.profileService.me(userId);
   }
 
   @Query("profile")
