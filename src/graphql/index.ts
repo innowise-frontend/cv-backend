@@ -31,6 +31,13 @@ export enum UserRole {
     Admin = "Admin"
 }
 
+export interface SearchPaginationInput {
+    search?: Nullable<string>;
+    sort_order?: Nullable<string>;
+    page?: Nullable<number>;
+    limit?: Nullable<number>;
+}
+
 export interface AuthInput {
     email: string;
     password: string;
@@ -391,7 +398,7 @@ export interface IQuery {
     cvs(): Cv[] | Promise<Cv[]>;
     cv(cvId: string): Cv | Promise<Cv>;
     departments(): Department[] | Promise<Department[]>;
-    languages(): Nullable<Language>[] | Promise<Nullable<Language>[]>;
+    languages(params?: Nullable<SearchPaginationInput>): PaginatedLanguages | Promise<PaginatedLanguages>;
     positions(): Position[] | Promise<Position[]>;
     position(id: string): Position | Promise<Position>;
     me(): Profile | Promise<Profile>;
@@ -399,8 +406,8 @@ export interface IQuery {
     projects(): Project[] | Promise<Project[]>;
     project(projectId: string): Project | Promise<Project>;
     skillCategories(): SkillCategory[] | Promise<SkillCategory[]>;
-    skills(): Skill[] | Promise<Skill[]>;
-    users(): User[] | Promise<User[]>;
+    skills(params?: Nullable<SearchPaginationInput>): PaginatedSkills | Promise<PaginatedSkills>;
+    users(params?: Nullable<SearchPaginationInput>): PaginatedUsers | Promise<PaginatedUsers>;
     user(userId: string): User | Promise<User>;
 }
 
@@ -416,6 +423,14 @@ export interface Language {
     iso2: string;
     name: string;
     native_name?: Nullable<string>;
+}
+
+export interface PaginatedLanguages {
+    items: Language[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
 }
 
 export interface LanguageProficiency {
@@ -445,6 +460,8 @@ export interface Profile {
     avatar?: Nullable<string>;
     skills: SkillMastery[];
     languages: LanguageProficiency[];
+    email?: Nullable<string>;
+    is_verified?: Nullable<boolean>;
     role?: Nullable<UserRole>;
 }
 
@@ -483,6 +500,14 @@ export interface Skill {
     category_parent_name?: Nullable<string>;
 }
 
+export interface PaginatedSkills {
+    items: Skill[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+}
+
 export interface User {
     id: string;
     created_at: string;
@@ -495,6 +520,14 @@ export interface User {
     position?: Nullable<Position>;
     position_name?: Nullable<string>;
     role: UserRole;
+}
+
+export interface PaginatedUsers {
+    items: User[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
 }
 
 export type Void = any;

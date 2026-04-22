@@ -3,7 +3,7 @@ import { ForbiddenException, UseGuards } from "@nestjs/common";
 import { Roles } from "src/app/guards/roles.decorator";
 import { OwnUserGuard } from "src/app/guards/own-user.guard";
 import { GetUserId } from "src/app/decorators/get_user_id.decorator";
-import { UserRole } from "src/graphql";
+import { SearchPaginationInput, UserRole } from "src/graphql";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -14,8 +14,8 @@ export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Query("users")
-  users() {
-    return this.usersService.findAll();
+  users(@Args("params", { nullable: true }) params?: SearchPaginationInput  ) {
+    return this.usersService.findAll(params);
   }
 
   @Query("user")

@@ -2,7 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { LanguageModel } from "./model/language.model";
-import { CreateLanguageInput, DeleteLanguageInput, UpdateLanguageInput } from "src/graphql";
+import { CreateLanguageInput, DeleteLanguageInput, SearchPaginationInput, UpdateLanguageInput } from "src/graphql";
+import { resolvePagination } from "src/app/util/pagination_logic";
 
 @Injectable()
 export class LanguagesService {
@@ -11,8 +12,29 @@ export class LanguagesService {
     private readonly languageRepository: Repository<LanguageModel>,
   ) {}
 
-  findAll() {
-    return this.languageRepository.find();
+  async findAll(params?: SearchPaginationInput) {
+    const { page, limit, skip } = resolvePagination(params);
+
+    const query = this.languageRepository.createQueryBuilder("language")
+
+    if (params?.search?.trim()) {
+      query.andWhere(
+        "language.name ILIKE :search OR language.iso2 ILIKE :search",
+        { search: `%${params.search.trim()}%` },
+      );
+    }
+
+    query.skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      total_pages: Math.ceil(total / limit),
+    };
   }
 
   findOneById(id: string) {

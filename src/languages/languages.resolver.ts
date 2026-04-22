@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Roles } from "src/app/guards/roles.decorator";
-import { UserRole } from "src/graphql";
+import { SearchPaginationInput, UserRole } from "src/graphql";
 import { LanguagesService } from "./languages.service";
 import { CreateLanguageDto, UpdateLanguageDto, DeleteLanguageDto } from "./dto/language.dto";
 
@@ -9,8 +9,8 @@ export class LanguagesResolver {
   constructor(private readonly languagesService: LanguagesService) {}
 
   @Query("languages")
-  languages() {
-    return this.languagesService.findAll();
+  languages(@Args("params", { nullable: true }) params?: SearchPaginationInput) {
+    return this.languagesService.findAll(params);
   }
 
   @Roles(UserRole.Admin)

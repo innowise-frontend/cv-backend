@@ -3,13 +3,13 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { compare, hash } from "bcrypt";
 import { UserModel } from "./model/user.model";
-import { CreateUserInput, UpdateUserInput, AuthInput } from "src/graphql";
+import { CreateUserInput, UpdateUserInput, AuthInput, SearchPaginationInput } from "src/graphql";
 import { CvsService } from "src/cvs/cvs.service";
 import { ProfileService } from "src/profile/profile.service";
 import { DepartmentsService } from "src/departments/departments.service";
 import { PositionsService } from "src/positions/positions.service";
 import { ChangePasswordDto } from "./dto/change-password.dto";
-
+import { resolvePagination } from "src/app/util/pagination_logic";
 const oldPasswordSameNewPassword = new BadRequestException({ message: "Old password is the same as the new password" });
 const userNotFound = new BadRequestException({ message: "User not found" });
 const oldPasswordIncorrect = new BadRequestException({ message: "Old password is incorrect" });
@@ -27,10 +27,33 @@ export class UsersService {
     private readonly positionsService: PositionsService,
   ) {}
 
-  findAll() {
-    return this.userRepository.find({
-      relations: ["profile", "cvs", "department", "position"],
-    });
+  async findAll(params?: SearchPaginationInput) {
+    const { page, limit, skip } = resolvePagination(params);
+
+    const query = this.userRepository.createQueryBuilder("user")
+      .leftJoinAndSelect("user.profile", "profile")
+      .leftJoinAndSelect("user.cvs", "cvs")
+      .leftJoinAndSelect("user.department", "department")
+      .leftJoinAndSelect("user.position", "position");
+
+    if (params?.search?.trim()) {
+      query.andWhere(
+        "profile.first_name ILIKE :search OR profile.last_name ILIKE :search OR user.email ILIKE :search",
+        { search: `%${params.search.trim()}%` },
+      );
+    }
+
+    query.skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      total_pages: Math.ceil(total / limit),
+    };
   }
 
   findOneById(userId?: string) {

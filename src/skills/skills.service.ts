@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { CreateSkillInput, UpdateSkillInput } from "src/graphql";
-import { In, Repository } from "typeorm";
+import { SearchPaginationInput, CreateSkillInput, UpdateSkillInput } from "src/graphql";
+import { Repository } from "typeorm";
 import { SkillModel } from "./model/skill.model";
 import { DeleteSkillDto } from "./dto/skill.dto";
+import { resolvePagination } from "src/app/util/pagination_logic";
 import { SkillCategoriesService } from "src/skill_categories/skill_categories.service";
 
 @Injectable()
@@ -14,16 +15,30 @@ export class SkillsService {
     private readonly skillCategoriesService: SkillCategoriesService,
   ) {}
 
-  findAll() {
-    return this.skillsRepository.find({
-      relations: ["category.parent"],
-    });
-  }
+  async findAll(params?: SearchPaginationInput) {
+    const { page, limit, skip } = resolvePagination(params);
 
-  findMany(ids: string[]) {
-    return this.skillsRepository.find({
-      where: { id: In(ids) },
-    });
+    const query = this.skillsRepository.createQueryBuilder("skill")
+      .leftJoinAndSelect("skill.category", "category")
+
+    if (params?.search?.trim()) {
+      query.andWhere(
+        "skill.name ILIKE :search OR category.name ILIKE :search",
+        { search: `%${params.search.trim()}%` },
+      );
+    }
+
+    query.skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      total_pages: Math.ceil(total / limit),
+    };
   }
 
   findOneById(id: string) {

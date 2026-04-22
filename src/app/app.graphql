@@ -1,3 +1,10 @@
 type DeleteResult {
   affected: Int!
 }
+
+input SearchPaginationInput {
+  search: String
+  sort_order: String
+  page: Int
+  limit: Int
+}

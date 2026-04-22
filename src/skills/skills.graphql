@@ -7,8 +7,16 @@ type Skill {
   category_parent_name: String
 }
 
+type PaginatedSkills {
+  items: [Skill!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+  total_pages: Int!
+}
+
 type Query {
-  skills: [Skill!]!
+  skills(params: SearchPaginationInput): PaginatedSkills!
 }
 
 input CreateSkillInput {

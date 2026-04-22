@@ -17,8 +17,16 @@ type User {
   role: UserRole!
 }
 
+type PaginatedUsers {
+  items: [User!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+  total_pages: Int!
+}
+
 type Query {
-  users: [User!]!
+  users(params: SearchPaginationInput): PaginatedUsers!
   user(userId: ID!): User!
 }
 

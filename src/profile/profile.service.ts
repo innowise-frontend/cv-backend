@@ -18,7 +18,6 @@ import {
   DeleteProfileInput,
 } from "src/graphql";
 
-const profileNotFound = new NotFoundException("Profile not found");
 const userNotFound = new NotFoundException("User not found");
 
 @Injectable()
@@ -38,16 +37,9 @@ export class ProfileService {
   }
 
   async me(userId: string) {
-    const profile = await this.profileRepository.findOne({
-      where: { id: userId },
-    });
-
-    if (!profile) {
-      throw profileNotFound;
-    }
-
     const user = await this.userRepository.findOne({
       where: { id: userId },
+      relations: ["profile"]
     });
 
     if (!user) {
@@ -55,10 +47,10 @@ export class ProfileService {
     }
 
     return {
-      ...profile,
-      role: user.role,
+      ...user.profile,
       email: user.email,
       is_verified: user.is_verified,
+      role: user.role,
     };
   }
 
