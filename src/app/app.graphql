@@ -5,6 +5,7 @@ type DeleteResult {
 input SearchPaginationInput {
   search: String
   sort_order: String
+  sort_by: String
   page: Int
   limit: Int
 }

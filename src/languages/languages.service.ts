@@ -14,6 +14,8 @@ export class LanguagesService {
 
   async findAll(params?: SearchPaginationInput) {
     const { page, limit, skip } = resolvePagination(params);
+    const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    const sortBy = params?.sort_by?.toLowerCase() || "created_at";
 
     const query = this.languageRepository.createQueryBuilder("language")
 
@@ -24,7 +26,7 @@ export class LanguagesService {
       );
     }
 
-    query.skip(skip).take(limit);
+    query.orderBy(`language.${sortBy}`, sortOrder).skip(skip).take(limit);
 
     const [items, total] = await query.getManyAndCount();
 

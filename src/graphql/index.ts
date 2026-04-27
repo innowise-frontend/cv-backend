@@ -34,6 +34,7 @@ export enum UserRole {
 export interface SearchPaginationInput {
     search?: Nullable<string>;
     sort_order?: Nullable<string>;
+    sort_by?: Nullable<string>;
     page?: Nullable<number>;
     limit?: Nullable<number>;
 }

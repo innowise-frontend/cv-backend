@@ -29,6 +29,8 @@ export class UsersService {
 
   async findAll(params?: SearchPaginationInput) {
     const { page, limit, skip } = resolvePagination(params);
+    const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    const sortBy = params?.sort_by?.toLowerCase() || "created_at";
 
     const query = this.userRepository.createQueryBuilder("user")
       .leftJoinAndSelect("user.profile", "profile")
@@ -43,7 +45,7 @@ export class UsersService {
       );
     }
 
-    query.skip(skip).take(limit);
+    query.orderBy(`user.${sortBy}`, sortOrder).skip(skip).take(limit);
 
     const [items, total] = await query.getManyAndCount();
 

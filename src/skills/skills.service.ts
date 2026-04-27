@@ -17,6 +17,8 @@ export class SkillsService {
 
   async findAll(params?: SearchPaginationInput) {
     const { page, limit, skip } = resolvePagination(params);
+    const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    const sortBy = params?.sort_by?.toLowerCase() || "created_at";
 
     const query = this.skillsRepository.createQueryBuilder("skill")
       .leftJoinAndSelect("skill.category", "category")
@@ -28,7 +30,7 @@ export class SkillsService {
       );
     }
 
-    query.skip(skip).take(limit);
+    query.orderBy(`skill.${sortBy}`, sortOrder).skip(skip).take(limit);
 
     const [items, total] = await query.getManyAndCount();
 

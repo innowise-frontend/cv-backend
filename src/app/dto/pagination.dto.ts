@@ -23,4 +23,8 @@ export class PaginationDto {
   @IsIn(["ASC", "DESC"])
   @IsString()
   sort_order?: "ASC" | "DESC";
+
+  @IsOptional()
+  @IsString()
+  sort_by?: string;
 }
