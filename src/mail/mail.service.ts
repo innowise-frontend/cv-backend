@@ -36,7 +36,7 @@ export class MailService {
     }
     await this.mailRepository.save(mail);
 
-    return this.mailerService.sendMail({
+    return await this.mailerService.sendMail({
       to: email,
       subject: "Verify email.",
       template: "./confirm-email.hbs",
@@ -75,6 +75,4 @@ export class MailService {
       },
     });
   }
-
-  async verifyResetPasswordCode() {}
 }
