@@ -36,7 +36,7 @@ export class MailService {
     }
     await this.mailRepository.save(mail);
 
-    return await this.mailerService.sendMail({
+    await this.mailerService.sendMail({
       to: email,
       subject: "Verify email.",
       template: "./confirm-email.hbs",

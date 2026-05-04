@@ -10,7 +10,7 @@ export class MailResolver {
 
   @Mutation("sendVerification")
   sendVerification(@Args("email") email: string,  @GetOrigin() origin: string) {
-    return this.mailService.sendVerificationEmail(email, `${origin}/verify-email`);
+    this.mailService.sendVerificationEmail(email, `${origin}/verify-email`);
   }
 
   @Mutation("verifyMail")
