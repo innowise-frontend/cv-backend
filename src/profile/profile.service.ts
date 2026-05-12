@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ProfileModel } from "./model/profile.model";
@@ -19,6 +19,8 @@ import {
 } from "src/graphql";
 
 const userNotFound = new NotFoundException("User not found");
+const languageHasBeenAdded = new BadRequestException("Language has already been added");
+const skillHasBeenAdded = new BadRequestException("Skill has already been added");
 
 @Injectable()
 export class ProfileService {
@@ -68,9 +70,11 @@ export class ProfileService {
 
   async addProfileSkill({ userId, name, categoryId, mastery }: AddProfileSkillInput) {
     const profile = await this.findOneById(userId);
-
+    const index = profile.skills.findIndex((skill) => skill.name === name);
+    if (index !== -1) {
+      throw skillHasBeenAdded;
+    }
     profile.skills.push({ name, categoryId, mastery });
-
     return this.profileRepository.save(profile);
   }
 
@@ -93,6 +97,10 @@ export class ProfileService {
 
   async addProfileLanguage({ userId, name, proficiency }: AddProfileLanguageInput) {
     const profile = await this.findOneById(userId);
+    const index = profile.languages.findIndex((skill) => skill.name === name);
+    if (index !== -1) {
+      throw languageHasBeenAdded;
+    }
     profile.languages.push({ name, proficiency });
     return this.profileRepository.save(profile);
   }
