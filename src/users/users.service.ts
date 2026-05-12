@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, BadRequestException } from "@nestjs/common";
+import { forwardRef, Inject, Injectable, BadRequestException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { compare, hash } from "bcrypt";
@@ -10,8 +10,9 @@ import { DepartmentsService } from "src/departments/departments.service";
 import { PositionsService } from "src/positions/positions.service";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { resolvePagination } from "src/app/util/pagination_logic";
+
 const oldPasswordSameNewPassword = new BadRequestException({ message: "Old password is the same as the new password" });
-const userNotFound = new BadRequestException({ message: "User not found" });
+const userNotFound = new NotFoundException("User not found");
 const oldPasswordIncorrect = new BadRequestException({ message: "Old password is incorrect" });
 const confirmPasswordMismatch = new BadRequestException({ message: "Confirm password mismatch" });
 
@@ -122,14 +123,12 @@ export class UsersService {
   async createUser({
     auth,
     profile: { first_name, last_name },
-    cvsIds,
     departmentId,
     positionId,
     role,
   }: CreateUserInput) {
-    const [user, cvs, department, position] = await Promise.all([
+    const [user, department, position] = await Promise.all([
       this.signup(auth),
-      this.cvsService.findMany(cvsIds),
       this.departmentsService.findOneById(departmentId),
       this.positionsService.findOneById(positionId),
     ]);
@@ -140,7 +139,6 @@ export class UsersService {
     });
     Object.assign(user, {
       profile,
-      cvs,
       department,
       position,
       role,
@@ -148,16 +146,12 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
-  async updateUser({ userId, cvsIds, departmentId, positionId, role }: UpdateUserInput) {
+  async updateUser({ userId, departmentId, positionId, role }: UpdateUserInput) {
     const [user, department, position] = await Promise.all([
       this.findOneById(userId),
       this.departmentsService.findOneById(departmentId),
       this.positionsService.findOneById(positionId),
     ]);
-    if (cvsIds) {
-      const cvs = await this.cvsService.findMany(cvsIds);
-      user.cvs = cvs;
-    }
     if (role) {
       user.role = role;
     }

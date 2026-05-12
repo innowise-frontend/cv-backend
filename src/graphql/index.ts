@@ -286,7 +286,6 @@ export interface DeleteSkillInput {
 export interface CreateUserInput {
     auth: AuthInput;
     profile: CreateProfileInput;
-    cvsIds: string[];
     departmentId?: Nullable<string>;
     positionId?: Nullable<string>;
     role: UserRole;
@@ -294,7 +293,6 @@ export interface CreateUserInput {
 
 export interface UpdateUserInput {
     userId: string;
-    cvsIds?: Nullable<string[]>;
     departmentId?: Nullable<string>;
     positionId?: Nullable<string>;
     role?: Nullable<UserRole>;
