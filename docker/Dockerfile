@@ -1,7 +1,7 @@
 FROM amd64/node:22-alpine AS build
 WORKDIR /usr/src/app
 
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@10 --activate
 
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install
