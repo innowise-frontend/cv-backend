@@ -393,8 +393,16 @@ export interface Cv {
     languages: LanguageProficiency[];
 }
 
+export interface PaginatedCvs {
+    items: Cv[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+}
+
 export interface IQuery {
-    cvs(): Cv[] | Promise<Cv[]>;
+    cvs(params?: Nullable<SearchPaginationInput>): PaginatedCvs | Promise<PaginatedCvs>;
     cv(cvId: string): Cv | Promise<Cv>;
     departments(): Department[] | Promise<Department[]>;
     languages(params?: Nullable<SearchPaginationInput>): PaginatedLanguages | Promise<PaginatedLanguages>;

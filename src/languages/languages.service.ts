@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { LanguageModel } from "./model/language.model";
-import { CreateLanguageInput, DeleteLanguageInput, SearchPaginationInput, UpdateLanguageInput } from "src/graphql";
+import { SearchPaginationInput, CreateLanguageInput, DeleteLanguageInput, UpdateLanguageInput } from "src/graphql";
 import { resolvePagination } from "src/app/util/pagination_logic";
 
 @Injectable()

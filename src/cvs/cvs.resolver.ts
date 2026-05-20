@@ -7,19 +7,19 @@ import { UseGuards } from "@nestjs/common";
 import { OwnCvGuard } from "src/app/guards/own_cv.guard";
 import { GetUserId } from "src/app/decorators/get_user_id.decorator";
 import { GetUserRole } from "src/app/decorators/get_user_role.decorator";
-import { UserRole } from "src/graphql";
+import { SearchPaginationInput, UserRole } from "src/graphql";
 
 @Resolver()
 export class CvsResolver {
   constructor(private readonly cvsService: CvsService) {}
 
   @Query("cvs")
-  cvs(@GetUserRole() role: UserRole, @GetUserId() userId: string) {
+  cvs(@GetUserRole() role: UserRole, @GetUserId() userId: string, @Args("params", { nullable: true }) params?: SearchPaginationInput) {
     if (role === UserRole.Admin) {
-      return this.cvsService.findAll();
+      return this.cvsService.findAll(params);
     }
 
-    return this.cvsService.findAllByUserId(userId);
+    return this.cvsService.findAllByUserId(userId, params);
   }
 
   @Query("cv")
