@@ -21,6 +21,7 @@ type PaginatedCvs {
 
 type Query {
   cvs(params: SearchPaginationInput): PaginatedCvs!
+  cvsByUserId(userId: ID!, params: SearchPaginationInput): PaginatedCvs!
   cv(cvId: ID!): Cv!
 }
 

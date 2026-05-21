@@ -14,11 +14,23 @@ export class CvsResolver {
   constructor(private readonly cvsService: CvsService) {}
 
   @Query("cvs")
-  cvs(@GetUserRole() role: UserRole, @GetUserId() userId: string, @Args("params", { nullable: true }) params?: SearchPaginationInput) {
+  cvs(
+    @GetUserRole() role: UserRole,
+    @GetUserId() userId: string,
+    @Args("params", { nullable: true }) params?: SearchPaginationInput,
+  ) {
     if (role === UserRole.Admin) {
       return this.cvsService.findAll(params);
     }
 
+    return this.cvsService.findAllByUserId(userId, params);
+  }
+
+  @Query("cvsByUserId")
+  cvsByUserId(
+    @Args("userId") userId: string,
+    @Args("params", { nullable: true }) params?: SearchPaginationInput,
+  ) {
     return this.cvsService.findAllByUserId(userId, params);
   }
 

@@ -403,6 +403,7 @@ export interface PaginatedCvs {
 
 export interface IQuery {
     cvs(params?: Nullable<SearchPaginationInput>): PaginatedCvs | Promise<PaginatedCvs>;
+    cvsByUserId(userId: string, params?: Nullable<SearchPaginationInput>): PaginatedCvs | Promise<PaginatedCvs>;
     cv(cvId: string): Cv | Promise<Cv>;
     departments(): Department[] | Promise<Department[]>;
     languages(params?: Nullable<SearchPaginationInput>): PaginatedLanguages | Promise<PaginatedLanguages>;
