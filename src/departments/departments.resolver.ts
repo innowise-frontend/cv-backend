@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Roles } from "src/app/guards/roles.decorator";
-import { UserRole } from "src/graphql";
+import { SearchPaginationInput, UserRole } from "src/graphql";
 import { DepartmentsService } from "./departments.service";
 import {
   CreateDepartmentDto,
@@ -13,8 +13,8 @@ export class DepartmentsResolver {
   constructor(private readonly departmentsService: DepartmentsService) {}
 
   @Query("departments")
-  departments() {
-    return this.departmentsService.findAll();
+  departments(@Args("params", { nullable: true }) params?: SearchPaginationInput) {
+    return this.departmentsService.findAll(params);
   }
 
   @Roles(UserRole.Admin)

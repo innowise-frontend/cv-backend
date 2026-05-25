@@ -2,7 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { DepartmentModel } from "./model/department.model";
-import { CreateDepartmentInput, DeleteDepartmentInput, UpdateDepartmentInput } from "src/graphql";
+import {
+  CreateDepartmentInput,
+  DeleteDepartmentInput,
+  SearchPaginationInput,
+  UpdateDepartmentInput,
+} from "src/graphql";
+import { resolvePagination } from "src/app/util/pagination_logic";
 
 @Injectable()
 export class DepartmentsService {
@@ -11,8 +17,28 @@ export class DepartmentsService {
     private readonly departmentRepository: Repository<DepartmentModel>,
   ) {}
 
-  findAll() {
-    return this.departmentRepository.find();
+  async findAll(params?: SearchPaginationInput) {
+    const { page, limit, skip } = resolvePagination(params);
+    const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    const sortBy = params?.sort_by?.toLowerCase() || "created_at";
+
+    const query = this.departmentRepository.createQueryBuilder("department");
+
+    if (params?.search?.trim()) {
+      query.andWhere("department.name ILIKE :search", { search: `%${params.search.trim()}%` });
+    }
+
+    query.orderBy(`department.${sortBy}`, sortOrder).skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      total_pages: Math.ceil(total / limit),
+    };
   }
 
   findOneById(id: string) {

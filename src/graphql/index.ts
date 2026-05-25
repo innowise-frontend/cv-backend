@@ -405,9 +405,9 @@ export interface IQuery {
     cvs(params?: Nullable<SearchPaginationInput>): PaginatedCvs | Promise<PaginatedCvs>;
     cvsByUserId(userId: string, params?: Nullable<SearchPaginationInput>): PaginatedCvs | Promise<PaginatedCvs>;
     cv(cvId: string): Cv | Promise<Cv>;
-    departments(): Department[] | Promise<Department[]>;
+    departments(params?: Nullable<SearchPaginationInput>): PaginatedDepartments | Promise<PaginatedDepartments>;
     languages(params?: Nullable<SearchPaginationInput>): PaginatedLanguages | Promise<PaginatedLanguages>;
-    positions(): Position[] | Promise<Position[]>;
+    positions(params?: Nullable<SearchPaginationInput>): PaginatedPositions | Promise<PaginatedPositions>;
     position(id: string): Position | Promise<Position>;
     me(): Profile | Promise<Profile>;
     profile(userId: string): Profile | Promise<Profile>;
@@ -423,6 +423,14 @@ export interface Department {
     id: string;
     created_at: string;
     name: string;
+}
+
+export interface PaginatedDepartments {
+    items: Department[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
 }
 
 export interface Language {
@@ -457,6 +465,14 @@ export interface Position {
     id: string;
     created_at: string;
     name: string;
+}
+
+export interface PaginatedPositions {
+    items: Position[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
 }
 
 export interface Profile {
