@@ -2,7 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { In, Repository } from "typeorm";
 import { ProjectModel } from "./model/project.model";
-import { CreateProjectInput, UpdateProjectInput, DeleteProjectInput } from "../graphql";
+import {
+  SearchPaginationInput,
+  CreateProjectInput,
+  UpdateProjectInput,
+  DeleteProjectInput,
+} from "src/graphql";
+import { resolvePagination } from "src/app/util/pagination_logic";
 
 @Injectable()
 export class ProjectsService {
@@ -11,8 +17,28 @@ export class ProjectsService {
     private readonly projectsRepository: Repository<ProjectModel>,
   ) {}
 
-  findAll() {
-    return this.projectsRepository.find();
+  async findAll(params?: SearchPaginationInput) {
+    const { page, limit, skip } = resolvePagination(params);
+    const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    const sortBy = params?.sort_by?.toLowerCase() || "created_at";
+
+    const query = this.projectsRepository.createQueryBuilder("project");
+
+    if (params?.search?.trim()) {
+      query.andWhere("project.name ILIKE :search", { search: `%${params.search.trim()}%` });
+    }
+
+    query.orderBy(`project.${sortBy}`, sortOrder).skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      total_pages: Math.ceil(total / limit),
+    };
   }
 
   findMany(projectIds: string[]) {

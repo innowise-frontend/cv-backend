@@ -411,7 +411,7 @@ export interface IQuery {
     position(id: string): Position | Promise<Position>;
     me(): Profile | Promise<Profile>;
     profile(userId: string): Profile | Promise<Profile>;
-    projects(): Project[] | Promise<Project[]>;
+    projects(params?: Nullable<SearchPaginationInput>): PaginatedProjects | Promise<PaginatedProjects>;
     project(projectId: string): Project | Promise<Project>;
     skillCategories(): SkillCategory[] | Promise<SkillCategory[]>;
     skills(params?: Nullable<SearchPaginationInput>): PaginatedSkills | Promise<PaginatedSkills>;
@@ -499,6 +499,14 @@ export interface Project {
     end_date?: Nullable<string>;
     description: string;
     environment: string[];
+}
+
+export interface PaginatedProjects {
+    items: Project[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
 }
 
 export interface SkillCategory {
