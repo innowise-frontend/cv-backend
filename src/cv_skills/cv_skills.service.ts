@@ -19,8 +19,11 @@ export class CvSkillsService {
 
   async addCvSkill({ cvId, name, categoryId, mastery }: AddCvSkillInput) {
     const cv = await this.findOneById(cvId);
+    const index = cv.skills.findIndex((skill) => skill.name === name);
 
-    cv.skills.push({ name, categoryId, mastery });
+    if (index !== -1) {
+      cv.skills.push({ name, categoryId, mastery });
+    }
 
     return this.cvRepository.save(cv);
   }
