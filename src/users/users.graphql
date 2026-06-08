@@ -13,7 +13,6 @@ type User {
   department: Department
   department_name: String
   position: Position
-  position_name: String
   role: UserRole!
 }
 

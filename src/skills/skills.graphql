@@ -2,7 +2,7 @@ type Skill {
   id: ID!
   created_at: String!
   name: String!
-  category: SkillCategory
+  category: SkillCategory!
   category_name: String
   category_parent_name: String
 }
@@ -21,13 +21,13 @@ type Query {
 
 input CreateSkillInput {
   name: String!
-  categoryId: ID
+  categoryId: ID!
 }
 
 input UpdateSkillInput {
   skillId: ID!
   name: String!
-  categoryId: ID
+  categoryId: ID!
 }
 
 input DeleteSkillInput {

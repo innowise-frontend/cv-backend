@@ -65,14 +65,6 @@ export class UserModel implements User {
   @JoinColumn()
   position: PositionModel;
 
-  @Expose()
-  get position_name() {
-    if (!this.position) {
-      return null;
-    }
-    return this.position.name;
-  }
-
   @Column("enum", { enum: UserRole, default: UserRole.Employee })
   role: UserRole;
 }

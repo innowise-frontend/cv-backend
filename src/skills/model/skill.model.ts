@@ -19,7 +19,7 @@ export class SkillModel implements Skill {
     eager: true,
     onDelete: "SET NULL",
   })
-  category?: SkillCategoryModel;
+  category: SkillCategoryModel;
 
   @Expose()
   get category_name() {

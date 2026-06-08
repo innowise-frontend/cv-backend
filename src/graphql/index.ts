@@ -276,13 +276,13 @@ export interface SkillMasteryInput {
 
 export interface CreateSkillInput {
     name: string;
-    categoryId?: Nullable<string>;
+    categoryId: string;
 }
 
 export interface UpdateSkillInput {
     skillId: string;
     name: string;
-    categoryId?: Nullable<string>;
+    categoryId: string;
 }
 
 export interface DeleteSkillInput {
@@ -533,7 +533,7 @@ export interface Skill {
     id: string;
     created_at: string;
     name: string;
-    category?: Nullable<SkillCategory>;
+    category: SkillCategory;
     category_name?: Nullable<string>;
     category_parent_name?: Nullable<string>;
 }
@@ -556,7 +556,6 @@ export interface User {
     department?: Nullable<Department>;
     department_name?: Nullable<string>;
     position?: Nullable<Position>;
-    position_name?: Nullable<string>;
     role: UserRole;
 }
 
