@@ -10,6 +10,7 @@ import { UsersService } from "../users/users.service";
 import { MailService } from "src/mail/mail.service";
 import {
   AuthInput,
+  SignupInput,
   ForgotPasswordInput,
   ResetPasswordInput,
   UpdateTokenResult,
@@ -31,6 +32,20 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
+
+  private async validateEmail(email: string) {
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (user) {
+      throw userAlreadyExists;
+    }
+  }
+  
+  private validatePasswords(password: string, confirmPassword: string) {
+    if (password !== confirmPassword) {
+      throw confirmPasswordMismatch;
+    }
+  }
 
   private async validatePassword({ email, password }: AuthInput) {
     const user = await this.usersService.findOneByEmail(email);
@@ -77,16 +92,9 @@ export class AuthService {
     return { user, ...tokens };
   }
 
-  private async validateEmail({ email }: AuthInput) {
-    const user = await this.usersService.findOneByEmail(email);
-
-    if (user) {
-      throw userAlreadyExists;
-    }
-  }
-
-  async signup({ email, password }: AuthInput, origin: string) {
-    await this.validateEmail({ email, password });
+  async signup({ email, password, confirmPassword }: SignupInput, origin: string) {
+    await this.validateEmail(email);
+    this.validatePasswords(password, confirmPassword);
 
     const user = await this.usersService.signup({ email, password });
     const tokens = await this.signJwt(user);
@@ -129,12 +137,8 @@ export class AuthService {
       throw actionExpired;
     });
 
-    if (newPassword !== confirmPassword) {
-      throw confirmPasswordMismatch;
-    }
+    this.validatePasswords(newPassword, confirmPassword);
 
     await this.usersService.updatePassword(email, newPassword);
-
-    return;
   }
 }

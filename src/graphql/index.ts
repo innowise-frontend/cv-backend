@@ -44,6 +44,12 @@ export interface AuthInput {
     password: string;
 }
 
+export interface SignupInput {
+    email: string;
+    password: string;
+    confirmPassword: string;
+}
+
 export interface ForgotPasswordInput {
     email: string;
 }
@@ -321,7 +327,7 @@ export interface UpdateTokenResult {
 
 export interface IMutation {
     login(auth: AuthInput): AuthResult | Promise<AuthResult>;
-    signup(auth: AuthInput): AuthResult | Promise<AuthResult>;
+    signup(auth: SignupInput): AuthResult | Promise<AuthResult>;
     forgotPassword(auth: ForgotPasswordInput): Nullable<Void> | Promise<Nullable<Void>>;
     resetPassword(auth: ResetPasswordInput): Nullable<Void> | Promise<Nullable<Void>>;
     updateToken(): UpdateTokenResult | Promise<UpdateTokenResult>;

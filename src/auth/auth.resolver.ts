@@ -30,6 +30,7 @@ export class AuthResolver {
   @Public()
   @Mutation("forgotPassword")
   forgotPassword(@Args("auth") args: ForgotPasswordDto, @GetOrigin() origin: string) {
+    console.log(origin);
     return this.authService.forgotPassword(args, origin);
   }
 

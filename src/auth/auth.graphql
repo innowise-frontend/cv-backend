@@ -3,6 +3,12 @@ input AuthInput {
   password: String!
 }
 
+input SignupInput {
+  email: String!
+  password: String!
+  confirmPassword: String!
+}
+
 type AuthResult {
   user: User!
   access_token: String!
@@ -27,7 +33,7 @@ scalar Void
 
 type Mutation {
   login(auth: AuthInput!): AuthResult!
-  signup(auth: AuthInput!): AuthResult!
+  signup(auth: SignupInput!): AuthResult!
   forgotPassword(auth: ForgotPasswordInput!): Void
   resetPassword(auth: ResetPasswordInput!): Void
   updateToken: UpdateTokenResult!

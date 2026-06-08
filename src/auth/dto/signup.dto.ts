@@ -7,4 +7,7 @@ export class SignupDto implements AuthInput {
 
   @MinLength(5)
   password: string;
+
+  @MinLength(5)
+  confirmPassword: string;
 }
