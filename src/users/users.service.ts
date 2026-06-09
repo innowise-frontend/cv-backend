@@ -22,7 +22,6 @@ export class UsersService {
     @InjectRepository(UserModel)
     private readonly userRepository: Repository<UserModel>,
     @Inject(forwardRef(() => CvsService))
-    private readonly cvsService: CvsService,
     private readonly profileService: ProfileService,
     private readonly departmentsService: DepartmentsService,
     private readonly positionsService: PositionsService,
@@ -32,10 +31,11 @@ export class UsersService {
     const { page, limit, skip } = resolvePagination(params);
     const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
     const sortBy = params?.sort_by?.toLowerCase() || "created_at";
+    const profileSortFields = ["first_name", "last_name"];
+    const sortColumn = profileSortFields.includes(sortBy) ? `profile.${sortBy}` : `user.${sortBy}`;
 
     const query = this.userRepository.createQueryBuilder("user")
       .leftJoinAndSelect("user.profile", "profile")
-      .leftJoinAndSelect("user.cvs", "cvs")
       .leftJoinAndSelect("user.department", "department")
       .leftJoinAndSelect("user.position", "position");
 
@@ -46,7 +46,7 @@ export class UsersService {
       );
     }
 
-    query.orderBy(`user.${sortBy}`, sortOrder).skip(skip).take(limit);
+    query.orderBy(sortColumn, sortOrder).skip(skip).take(limit);
 
     const [items, total] = await query.getManyAndCount();
 

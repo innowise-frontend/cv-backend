@@ -137,8 +137,8 @@ DATABASE_URL="postgres://user:pass@cv_postgres:5432/db"
 DATABASE_SSL=""
 JWT_SECRET="jwtsecret"
 JWT_SECRET_2="jwtrotationsecret"
-CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
-CHROME_WS=wss://chrome.browserless.io?token=YOUR_TOKEN
+CLOUDINARY_URL="cloudinary://API_KEY:API_SECRET@CLOUD_NAME"
+CHROME_WS="wss://chrome.browserless.io?token=YOUR_TOKEN"
 MAIL_FROM="cv-builder@mail.com"
 SMTP_URL="smtp://YOUR_EMAIL@gmail.com:APP_PASSWORD@smtp.gmail.com:587"
 ```
