@@ -20,14 +20,14 @@ export class SkillsService {
     const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
     const sortBy = params?.sort_by?.toLowerCase() || "created_at";
 
-    const query = this.skillsRepository.createQueryBuilder("skill")
-      .leftJoinAndSelect("skill.category", "category")
+    const query = this.skillsRepository
+      .createQueryBuilder("skill")
+      .leftJoinAndSelect("skill.category", "category");
 
     if (params?.search?.trim()) {
-      query.andWhere(
-        "skill.name ILIKE :search OR category.name ILIKE :search",
-        { search: `%${params.search.trim()}%` },
-      );
+      query.andWhere("skill.name ILIKE :search OR category.name ILIKE :search", {
+        search: `%${params.search.trim()}%`,
+      });
     }
 
     query.orderBy(`skill.${sortBy}`, sortOrder).skip(skip).take(limit);
@@ -43,10 +43,8 @@ export class SkillsService {
     };
   }
 
-  findOneById(id: string) {
-    return this.skillsRepository.findOne({
-      where: { id },
-    });
+  async findOneById(id: string) {
+    return await this.skillsRepository.findOne({ where: { id } });
   }
 
   async createSkill({ name, categoryId }: CreateSkillInput) {
@@ -57,7 +55,7 @@ export class SkillsService {
       category,
     });
 
-    return this.skillsRepository.save(skill);
+    return await this.skillsRepository.save(skill);
   }
 
   async updateSkill({ skillId, name, categoryId }: UpdateSkillInput) {
@@ -71,10 +69,10 @@ export class SkillsService {
       category,
     });
 
-    return this.skillsRepository.save(skill);
+    return await this.skillsRepository.save(skill);
   }
 
-  deleteSkill({ skillId }: DeleteSkillDto) {
-    return this.skillsRepository.delete(skillId);
+  async deleteSkill({ skillId }: DeleteSkillDto) {
+    return await this.skillsRepository.delete(skillId);
   }
 }

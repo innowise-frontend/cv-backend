@@ -2,7 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { LanguageModel } from "./model/language.model";
-import { SearchPaginationInput, CreateLanguageInput, DeleteLanguageInput, UpdateLanguageInput } from "src/graphql";
+import {
+  SearchPaginationInput,
+  CreateLanguageInput,
+  DeleteLanguageInput,
+  UpdateLanguageInput,
+} from "src/graphql";
 import { resolvePagination } from "src/app/util/pagination_logic";
 
 @Injectable()
@@ -17,13 +22,12 @@ export class LanguagesService {
     const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
     const sortBy = params?.sort_by?.toLowerCase() || "created_at";
 
-    const query = this.languageRepository.createQueryBuilder("language")
+    const query = this.languageRepository.createQueryBuilder("language");
 
     if (params?.search?.trim()) {
-      query.andWhere(
-        "language.name ILIKE :search OR language.iso2 ILIKE :search",
-        { search: `%${params.search.trim()}%` },
-      );
+      query.andWhere("language.name ILIKE :search OR language.iso2 ILIKE :search", {
+        search: `%${params.search.trim()}%`,
+      });
     }
 
     query.orderBy(`language.${sortBy}`, sortOrder).skip(skip).take(limit);
@@ -39,19 +43,18 @@ export class LanguagesService {
     };
   }
 
-  findOneById(id: string) {
-    return this.languageRepository.findOne({
-      where: { id },
-    });
+  async findOneById(id: string) {
+    return await this.languageRepository.findOne({ where: { id } });
   }
 
-  createLanguage({ name, iso2, native_name }: CreateLanguageInput) {
+  async createLanguage({ name, iso2, native_name }: CreateLanguageInput) {
     const language = this.languageRepository.create({
       name,
       iso2,
       native_name,
     });
-    return this.languageRepository.save(language);
+
+    return await this.languageRepository.save(language);
   }
 
   async updateLanguage({ languageId, name, iso2, native_name }: UpdateLanguageInput) {
@@ -59,10 +62,11 @@ export class LanguagesService {
     language.name = name;
     language.iso2 = iso2;
     language.native_name = native_name;
-    return this.languageRepository.save(language);
+
+    return await this.languageRepository.save(language);
   }
 
-  deleteLanguage({ languageId }: DeleteLanguageInput) {
-    return this.languageRepository.delete(languageId);
+  async deleteLanguage({ languageId }: DeleteLanguageInput) {
+    return await this.languageRepository.delete(languageId);
   }
 }

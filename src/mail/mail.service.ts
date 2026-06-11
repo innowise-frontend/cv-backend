@@ -15,10 +15,8 @@ export class MailService {
     private readonly usersService: UsersService,
   ) {}
 
-  findOneByEmail(email: string) {
-    return this.mailRepository.findOne({
-      where: { email },
-    });
+  async findOneByEmail(email: string) {
+    return await this.mailRepository.findOne({ where: { email } });
   }
 
   createOneTimePassword() {
@@ -63,8 +61,8 @@ export class MailService {
     throw new BadRequestException({ message: "Invalid credentials" });
   }
 
-  sendResetPasswordEmail(email: string, url: string) {
-    return this.mailerService.sendMail({
+  async sendResetPasswordEmail(email: string, url: string) {
+    return await this.mailerService.sendMail({
       to: email,
       subject: "Password reset.",
       template: "./reset_password.hbs",

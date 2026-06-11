@@ -41,16 +41,12 @@ export class ProjectsService {
     };
   }
 
-  findMany(projectIds: string[]) {
-    return this.projectsRepository.find({
-      where: { id: In(projectIds) },
-    });
+  async findMany(projectIds: string[]) {
+    return await this.projectsRepository.find({ where: { id: In(projectIds) } });
   }
 
-  findOneById(projectId: string) {
-    return this.projectsRepository.findOne({
-      where: { id: projectId },
-    });
+  async findOneById(projectId: string) {
+    return await this.projectsRepository.findOne({ where: { id: projectId } });
   }
 
   async createProject({
@@ -70,7 +66,7 @@ export class ProjectsService {
       environment,
     });
 
-    return this.projectsRepository.save(project);
+    return await this.projectsRepository.save(project);
   }
 
   async updateProject({
@@ -93,10 +89,10 @@ export class ProjectsService {
       environment,
     });
 
-    return this.projectsRepository.save(project);
+    return await this.projectsRepository.save(project);
   }
 
-  deleteProject({ projectId }: DeleteProjectInput) {
-    return this.projectsRepository.delete(projectId);
+  async deleteProject({ projectId }: DeleteProjectInput) {
+    return await this.projectsRepository.delete(projectId);
   }
 }

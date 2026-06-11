@@ -12,9 +12,7 @@ export class CvSkillsService {
   ) {}
 
   findOneById(cvId: string) {
-    return this.cvRepository.findOne({
-      where: { id: cvId },
-    });
+    return this.cvRepository.findOne({ where: { id: cvId } });
   }
 
   async addCvSkill({ cvId, name, categoryId, mastery }: AddCvSkillInput) {
@@ -25,7 +23,7 @@ export class CvSkillsService {
       cv.skills.push({ name, categoryId, mastery });
     }
 
-    return this.cvRepository.save(cv);
+    return await this.cvRepository.save(cv);
   }
 
   async updateCvSkill({ cvId, name, categoryId, mastery }: UpdateCvSkillInput) {
@@ -36,7 +34,7 @@ export class CvSkillsService {
       cv.skills[index] = { name, categoryId, mastery };
     }
 
-    return this.cvRepository.save(cv);
+    return await this.cvRepository.save(cv);
   }
 
   async deleteCvSkill({ cvId, name }: DeleteCvSkillInput) {
@@ -44,6 +42,6 @@ export class CvSkillsService {
 
     cv.skills = cv.skills.filter((skill) => !name.includes(skill.name));
 
-    return this.cvRepository.save(cv);
+    return await this.cvRepository.save(cv);
   }
 }

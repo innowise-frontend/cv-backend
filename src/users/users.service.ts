@@ -59,18 +59,17 @@ export class UsersService {
     };
   }
 
-  findOneById(userId?: string) {
-    if (!userId) {
-      return null;
-    }
-    return this.userRepository.findOne({
-      where: { id: userId },
-      relations: ["profile", "cvs", "department", "position"],
-    });
+  async findOneById(userId?: string) {
+    return userId
+      ? await this.userRepository.findOne({
+        where: { id: userId },
+        relations: ["profile", "cvs", "department", "position"],
+      }) 
+      : null;
   }
 
-  findOneByEmail(email: string) {
-    return this.userRepository.findOne({
+  async findOneByEmail(email: string) {
+    return await this.userRepository.findOne({
       where: { email },
       relations: ["profile"],
     });
@@ -86,13 +85,13 @@ export class UsersService {
       password,
       profile,
     });
-    return this.userRepository.save(user);
+    return await this.userRepository.save(user);
   }
 
   async verifyUser(email: string) {
     const user = await this.findOneByEmail(email);
     user.is_verified = true;
-    return this.userRepository.save(user);
+    return await this.userRepository.save(user);
   }
 
   async changePassword(userId: string, { oldPassword, newPassword, confirmPassword }: ChangePasswordDto) {
@@ -117,7 +116,7 @@ export class UsersService {
 
     user.password = await hash(newPassword, 10);
 
-    return this.userRepository.save(user);
+    return await this.userRepository.save(user);
   }
 
   async createUser({
@@ -143,7 +142,7 @@ export class UsersService {
       position,
       role,
     });
-    return this.userRepository.save(user);
+    return await this.userRepository.save(user);
   }
 
   async updateUser({ userId, departmentId, positionId, role }: UpdateUserInput) {
@@ -159,7 +158,7 @@ export class UsersService {
       department,
       position,
     });
-    return this.userRepository.save(user);
+    return await this.userRepository.save(user);
   }
 
   async updatePassword(email: string, newPassword: string) {
@@ -167,10 +166,10 @@ export class UsersService {
 
     user.password = await hash(newPassword, 10);
 
-    return this.userRepository.save(user);
+    return await this.userRepository.save(user);
   }
 
-  deleteUser(userId: string) {
-    return this.profileService.deleteProfile({ userId });
+  async deleteUser(userId: string) {
+    return await this.profileService.deleteProfile({ userId });
   }
 }

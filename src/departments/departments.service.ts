@@ -42,26 +42,21 @@ export class DepartmentsService {
   }
 
   findOneById(id: string) {
-    if (!id) {
-      return null;
-    }
-    return this.departmentRepository.findOne({
-      where: { id },
-    });
+    return id ? this.departmentRepository.findOne({ where: { id } }) : null;
   }
 
-  create({ name }: CreateDepartmentInput) {
+  async create({ name }: CreateDepartmentInput) {
     const department = this.departmentRepository.create({ name });
-    return this.departmentRepository.save(department);
+    return await this.departmentRepository.save(department);
   }
 
   async update({ departmentId, name }: UpdateDepartmentInput) {
     const department = await this.findOneById(departmentId);
     department.name = name;
-    return this.departmentRepository.save(department);
+    return await this.departmentRepository.save(department);
   }
 
-  delete({ departmentId }: DeleteDepartmentInput) {
-    return this.departmentRepository.delete(departmentId);
+  async delete({ departmentId }: DeleteDepartmentInput) {
+    return await this.departmentRepository.delete(departmentId);
   }
 }

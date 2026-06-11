@@ -58,14 +58,14 @@ export class ProfileService {
 
   async createProfile({ first_name, last_name }: CreateProfileInput) {
     const profile = this.profileRepository.create({ first_name, last_name });
-    return this.profileRepository.save(profile);
+    return await this.profileRepository.save(profile);
   }
 
   async updateProfile({ userId, first_name, last_name }: UpdateProfileInput) {
     const profile = await this.findOneById(userId);
     profile.first_name = first_name;
     profile.last_name = last_name;
-    return this.profileRepository.save(profile);
+    return await this.profileRepository.save(profile);
   }
 
   async addProfileSkill({ userId, name, categoryId, mastery }: AddProfileSkillInput) {
@@ -75,7 +75,7 @@ export class ProfileService {
       throw skillHasBeenAdded;
     }
     profile.skills.push({ name, categoryId, mastery });
-    return this.profileRepository.save(profile);
+    return await this.profileRepository.save(profile);
   }
 
   async updateProfileSkill({ userId, name, categoryId, mastery }: UpdateProfileSkillInput) {
@@ -86,13 +86,13 @@ export class ProfileService {
       profile.skills[index] = { name, categoryId, mastery };
     }
 
-    return this.profileRepository.save(profile);
+    return await this.profileRepository.save(profile);
   }
 
   async deleteProfileSkill({ userId, name }: DeleteProfileSkillInput) {
     const profile = await this.findOneById(userId);
     profile.skills = profile.skills.filter((skill) => !name.includes(skill.name));
-    return this.profileRepository.save(profile);
+    return await this.profileRepository.save(profile);
   }
 
   async addProfileLanguage({ userId, name, proficiency }: AddProfileLanguageInput) {
@@ -102,7 +102,7 @@ export class ProfileService {
       throw languageHasBeenAdded;
     }
     profile.languages.push({ name, proficiency });
-    return this.profileRepository.save(profile);
+    return await this.profileRepository.save(profile);
   }
 
   async updateProfileLanguage({ userId, name, proficiency }: UpdateProfileLanguageInput) {
@@ -113,13 +113,13 @@ export class ProfileService {
       }
       return language;
     });
-    return this.profileRepository.save(profile);
+    return await this.profileRepository.save(profile);
   }
 
   async deleteProfileLanguage({ userId, name }: DeleteProfileLanguageInput) {
     const profile = await this.findOneById(userId);
     profile.languages = profile.languages.filter((language) => !name.includes(language.name));
-    return this.profileRepository.save(profile);
+    return await this.profileRepository.save(profile);
   }
 
   async uploadAvatar({ userId, base64 }: UploadAvatarInput) {
@@ -137,7 +137,7 @@ export class ProfileService {
     return null;
   }
 
-  deleteProfile({ userId }: DeleteProfileInput) {
-    return this.profileRepository.delete(userId);
+  async deleteProfile({ userId }: DeleteProfileInput) {
+    return await this.profileRepository.delete(userId);
   }
 }

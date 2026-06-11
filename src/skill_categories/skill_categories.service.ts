@@ -10,8 +10,8 @@ export class SkillCategoriesService {
     private readonly skillCategoriesRepository: Repository<SkillCategoryModel>,
   ) {}
 
-  findAll() {
-    return this.skillCategoriesRepository.find({
+  async findAll() {
+    return await this.skillCategoriesRepository.find({
       relations: ["parent", "children"],
       order: {
         order: "asc",
@@ -19,13 +19,11 @@ export class SkillCategoriesService {
     });
   }
 
-  findOneById(categoryId?: string) {
-    if (!categoryId) {
-      return null;
-    }
-
-    return this.skillCategoriesRepository.findOne({
-      where: { id: categoryId },
-    });
+  async findOneById(categoryId?: string) {
+    return categoryId
+      ? await this.skillCategoriesRepository.findOne({
+          where: { id: categoryId },
+        })
+      : null;
   }
 }

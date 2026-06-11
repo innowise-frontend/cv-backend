@@ -71,32 +71,21 @@ export class CvsService {
     };
   }
 
-  findMany(ids: string[]) {
-    return this.cvRepository.find({
-      where: { id: In(ids) },
-    });
+  async findMany(ids: string[]) {
+    return await this.cvRepository.find({ where: { id: In(ids) } });
   }
 
-  findOneById(cvId: string) {
-    return this.cvRepository.findOne({
+  async findOneById(cvId: string) {
+    return await this.cvRepository.findOne({
       where: { id: cvId },
       relations: ["user", "projects"],
     });
   }
 
-  findOneByIdAndJoin(cvId: string) {
-    return this.cvRepository.findOne({
+  async findOneByIdAndJoin(cvId: string) {
+    return await this.cvRepository.findOne({
       where: { id: cvId },
       relations: ["user", "user.profile", "projects", "projects.project"],
-      // join: {
-      //   alias: "cv",
-      //   leftJoinAndSelect: {
-      //     user: "cv.user",
-      //     profile: "user.profile",
-      //     department: "user.department",
-      //     position: "user.position",
-      //   },
-      // },
     });
   }
 
@@ -110,7 +99,8 @@ export class CvsService {
       skills: user.profile.skills,
       languages: user.profile.languages,
     });
-    return this.cvRepository.save(cv);
+
+    return await this.cvRepository.save(cv);
   }
 
   async updateCv({ cvId, name, education, description }: UpdateCvInput) {
@@ -118,7 +108,8 @@ export class CvsService {
     cv.name = name;
     cv.education = education;
     cv.description = description;
-    return this.cvRepository.save(cv);
+
+    return await this.cvRepository.save(cv);
   }
 
   deleteCv({ cvId }: DeleteCvInput) {

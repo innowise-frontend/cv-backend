@@ -17,8 +17,8 @@ export class CvProjectsService {
     private readonly projectsService: ProjectsService,
   ) {}
 
-  findOneByIdAndJoin(cvId: string) {
-    return this.cvRepository.findOne({
+  async findOneByIdAndJoin(cvId: string) {
+    return await this.cvRepository.findOne({
       where: { id: cvId },
       relations: ["projects", "projects.project"],
     });

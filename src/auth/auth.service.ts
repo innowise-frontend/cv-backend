@@ -77,7 +77,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    return this.signJwt(user);
+    return await this.signJwt(user);
   }
 
   async login({ email, password }: AuthInput) {

@@ -36,33 +36,26 @@ export class PositionsService {
     };
   }
 
-  findMany(ids: string[]) {
-    return this.positionRepository.find({
-      where: { id: In(ids) },
-    });
+  async findMany(ids: string[]) {
+    return await this.positionRepository.find({ where: { id: In(ids) } });
   }
 
-  findOneById(id: string) {
-    if (!id) {
-      return null;
-    }
-    return this.positionRepository.findOne({
-      where: { id },
-    });
+  async findOneById(id: string) {
+    return id ? await this.positionRepository.findOne({ where: { id } }) : null;
   }
 
-  create({ name }: CreatePositionInput) {
+  async create({ name }: CreatePositionInput) {
     const position = this.positionRepository.create({ name });
-    return this.positionRepository.save(position);
+    return await this.positionRepository.save(position);
   }
 
   async update({ positionId, name }: UpdatePositionInput) {
     const position = await this.findOneById(positionId);
     position.name = name;
-    return this.positionRepository.save(position);
+    return await this.positionRepository.save(position);
   }
 
-  delete({ positionId }: DeletePositionInput) {
-    return this.positionRepository.delete(positionId);
+  async delete({ positionId }: DeletePositionInput) {
+    return await this.positionRepository.delete(positionId);
   }
 }
