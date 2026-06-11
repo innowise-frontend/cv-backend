@@ -4,7 +4,7 @@ interface PaginationMeta {
   page: number;
   limit: number;
   skip: number;
-};
+}
 
 export function resolvePagination(params?: SearchPaginationInput): PaginationMeta {
   const page = params?.page && params.page > 0 ? params.page : 1;

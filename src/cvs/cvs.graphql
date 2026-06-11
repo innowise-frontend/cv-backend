@@ -18,7 +18,6 @@ type PaginatedCvs {
   total_pages: Int!
 }
 
-
 type Query {
   cvs(params: SearchPaginationInput): PaginatedCvs!
   cvsByUserId(userId: ID!, params: SearchPaginationInput): PaginatedCvs!

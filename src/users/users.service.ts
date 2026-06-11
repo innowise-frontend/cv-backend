@@ -1,4 +1,10 @@
-import { forwardRef, Inject, Injectable, BadRequestException, NotFoundException } from "@nestjs/common";
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { compare, hash } from "bcrypt";
@@ -11,7 +17,9 @@ import { PositionsService } from "src/positions/positions.service";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { resolvePagination } from "src/app/util/pagination_logic";
 
-const oldPasswordSameNewPassword = new BadRequestException({ message: "Old password is the same as the new password" });
+const oldPasswordSameNewPassword = new BadRequestException({
+  message: "Old password is the same as the new password",
+});
 const userNotFound = new NotFoundException("User not found");
 const oldPasswordIncorrect = new BadRequestException({ message: "Old password is incorrect" });
 const confirmPasswordMismatch = new BadRequestException({ message: "Confirm password mismatch" });
@@ -34,7 +42,8 @@ export class UsersService {
     const profileSortFields = ["first_name", "last_name"];
     const sortColumn = profileSortFields.includes(sortBy) ? `profile.${sortBy}` : `user.${sortBy}`;
 
-    const query = this.userRepository.createQueryBuilder("user")
+    const query = this.userRepository
+      .createQueryBuilder("user")
       .leftJoinAndSelect("user.profile", "profile")
       .leftJoinAndSelect("user.department", "department")
       .leftJoinAndSelect("user.position", "position");
@@ -62,9 +71,9 @@ export class UsersService {
   async findOneById(userId?: string) {
     return userId
       ? await this.userRepository.findOne({
-        where: { id: userId },
-        relations: ["profile", "cvs", "department", "position"],
-      }) 
+          where: { id: userId },
+          relations: ["profile", "cvs", "department", "position"],
+        })
       : null;
   }
 
@@ -94,8 +103,10 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  async changePassword(userId: string, { oldPassword, newPassword, confirmPassword }: ChangePasswordDto) {
-
+  async changePassword(
+    userId: string,
+    { oldPassword, newPassword, confirmPassword }: ChangePasswordDto,
+  ) {
     if (oldPassword === newPassword) {
       throw oldPasswordSameNewPassword;
     }
@@ -103,7 +114,7 @@ export class UsersService {
     const user = await this.findOneById(userId);
 
     if (!user) {
-      throw userNotFound
+      throw userNotFound;
     }
 
     if (!(await compare(oldPassword, user.password))) {

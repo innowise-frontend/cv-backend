@@ -20,15 +20,15 @@ export class CvsService {
     const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
     const sortBy = params?.sort_by?.toLowerCase() || "created_at";
 
-    const query = this.cvRepository.createQueryBuilder("cv")
+    const query = this.cvRepository
+      .createQueryBuilder("cv")
       .leftJoinAndSelect("cv.user", "user")
       .leftJoinAndSelect("cv.projects", "projects");
 
     if (params?.search?.trim()) {
-      query.andWhere(
-        "cv.name ILIKE :search OR user.email ILIKE :search",
-        { search: `%${params.search.trim()}%` },
-      );
+      query.andWhere("cv.name ILIKE :search OR user.email ILIKE :search", {
+        search: `%${params.search.trim()}%`,
+      });
     }
 
     query.orderBy(`cv.${sortBy}`, sortOrder).skip(skip).take(limit);
@@ -49,7 +49,8 @@ export class CvsService {
     const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
     const sortBy = params?.sort_by?.toLowerCase() || "created_at";
 
-    const query = this.cvRepository.createQueryBuilder("cv")
+    const query = this.cvRepository
+      .createQueryBuilder("cv")
       .leftJoinAndSelect("cv.user", "user")
       .leftJoinAndSelect("cv.projects", "projects")
       .where("user.id = :userId", { userId });

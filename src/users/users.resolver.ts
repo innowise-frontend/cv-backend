@@ -14,7 +14,7 @@ export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Query("users")
-  users(@Args("params", { nullable: true }) params?: SearchPaginationInput  ) {
+  users(@Args("params", { nullable: true }) params?: SearchPaginationInput) {
     return this.usersService.findAll(params);
   }
 

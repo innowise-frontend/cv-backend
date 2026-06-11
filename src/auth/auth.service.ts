@@ -40,7 +40,7 @@ export class AuthService {
       throw userAlreadyExists;
     }
   }
-  
+
   private validatePasswords(password: string, confirmPassword: string) {
     if (password !== confirmPassword) {
       throw confirmPasswordMismatch;

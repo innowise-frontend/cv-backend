@@ -2,7 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { In, Repository } from "typeorm";
 import { PositionModel } from "./model/position.model";
-import { CreatePositionInput, UpdatePositionInput, DeletePositionInput, SearchPaginationInput } from "src/graphql";
+import {
+  CreatePositionInput,
+  UpdatePositionInput,
+  DeletePositionInput,
+  SearchPaginationInput,
+} from "src/graphql";
 import { resolvePagination } from "src/app/util/pagination_logic";
 
 @Injectable()

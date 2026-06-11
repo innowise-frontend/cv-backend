@@ -41,7 +41,7 @@ export class ProfileService {
   async me(userId: string) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ["profile"]
+      relations: ["profile"],
     });
 
     if (!user) {

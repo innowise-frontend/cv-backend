@@ -9,7 +9,7 @@ export class MailResolver {
   constructor(private readonly mailService: MailService) {}
 
   @Mutation("sendVerification")
-  sendVerification(@Args("email") email: string,  @GetOrigin() origin: string) {
+  sendVerification(@Args("email") email: string, @GetOrigin() origin: string) {
     this.mailService.sendVerificationEmail(email, `${origin}/verify-email`);
   }
 
