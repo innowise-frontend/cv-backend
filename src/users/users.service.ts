@@ -1,16 +1,9 @@
-import {
-  forwardRef,
-  Inject,
-  Injectable,
-  BadRequestException,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, BadRequestException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { compare, hash } from "bcrypt";
 import { UserModel } from "./model/user.model";
 import { CreateUserInput, UpdateUserInput, AuthInput, SearchPaginationInput } from "src/graphql";
-import { CvsService } from "src/cvs/cvs.service";
 import { ProfileService } from "src/profile/profile.service";
 import { DepartmentsService } from "src/departments/departments.service";
 import { PositionsService } from "src/positions/positions.service";
@@ -29,7 +22,6 @@ export class UsersService {
   constructor(
     @InjectRepository(UserModel)
     private readonly userRepository: Repository<UserModel>,
-    @Inject(forwardRef(() => CvsService))
     private readonly profileService: ProfileService,
     private readonly departmentsService: DepartmentsService,
     private readonly positionsService: PositionsService,
