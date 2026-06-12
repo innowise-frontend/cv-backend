@@ -16,7 +16,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "image:up": "docker compose -f docker/docker-compose.yml up -d",
+    "image:up": "docker compose -f docker/docker-compose.yml up -d --build",
     "image:down": "docker compose -f docker/docker-compose.yml down",
     "backup": "pnpm run backup:copy && pnpm run backup:restore",
     "backup:copy": "docker cp backups/backup.sql cv_postgres:/tmp/backup.sql",
