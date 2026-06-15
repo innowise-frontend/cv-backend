@@ -13,6 +13,11 @@ export class ProjectsResolver {
     return this.projectsService.findAll(params);
   }
 
+  @Query("projectsByUserId")
+  projectsByUserId(@Args("userId") userId: string, @Args("params") params: SearchPaginationInput) {
+    return this.projectsService.findAllByUserId(userId, params);
+  }
+
   @Query("project")
   project(@Args("projectId") projectId: string) {
     return this.projectsService.findOneById(projectId);

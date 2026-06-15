@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { PositionModel } from "./model/position.model";
 import {
   CreatePositionInput,
@@ -39,10 +39,6 @@ export class PositionsService {
       limit,
       total_pages: Math.ceil(total / limit),
     };
-  }
-
-  async findMany(ids: string[]) {
-    return await this.positionRepository.find({ where: { id: In(ids) } });
   }
 
   async findOneById(id: string) {

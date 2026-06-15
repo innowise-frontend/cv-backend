@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { ProjectModel } from "./model/project.model";
 import {
   SearchPaginationInput,
@@ -41,8 +41,28 @@ export class ProjectsService {
     };
   }
 
-  async findMany(projectIds: string[]) {
-    return await this.projectsRepository.find({ where: { id: In(projectIds) } });
+  async findAllByUserId(userId: string, params?: SearchPaginationInput) {
+    const { page, limit, skip } = resolvePagination(params);
+    const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    const sortBy = params?.sort_by?.toLowerCase() || "created_at";
+
+    const query = this.projectsRepository.createQueryBuilder("project").where("project.user_id = :userId", { userId });
+
+    if (params?.search?.trim()) {
+      query.andWhere("project.name ILIKE :search", { search: `%${params.search.trim()}%` });
+    }
+
+    query.orderBy(`project.${sortBy}`, sortOrder).skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      total_pages: Math.ceil(total / limit),
+    };
   }
 
   async findOneById(projectId: string) {

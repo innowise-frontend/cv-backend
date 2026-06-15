@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { CvModel } from "./model/cv.model";
 import { UsersService } from "../users/users.service";
 import { SearchPaginationInput, CreateCvInput, DeleteCvInput, UpdateCvInput } from "src/graphql";
@@ -70,10 +70,6 @@ export class CvsService {
       limit,
       total_pages: Math.ceil(total / limit),
     };
-  }
-
-  async findMany(ids: string[]) {
-    return await this.cvRepository.find({ where: { id: In(ids) } });
   }
 
   async findOneById(cvId: string) {
