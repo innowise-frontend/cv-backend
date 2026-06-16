@@ -1,9 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, BadRequestException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { AddCvSkillInput, DeleteCvSkillInput, UpdateCvSkillInput } from "../graphql";
 import { CvModel } from "src/cvs/model/cv.model";
 
+const skillHasBeenAdded = new BadRequestException("Skill has already been added");
 @Injectable()
 export class CvSkillsService {
   constructor(
@@ -19,8 +20,10 @@ export class CvSkillsService {
     const cv = await this.findOneById(cvId);
     const index = cv.skills.findIndex((skill) => skill.name === name);
 
-    if (index !== -1) {
+    if (index === -1) {
       cv.skills.push({ name, categoryId, mastery });
+    } else {
+      throw skillHasBeenAdded;
     }
 
     return await this.cvRepository.save(cv);
