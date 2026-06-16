@@ -419,6 +419,7 @@ export interface IQuery {
     profile(userId: string): Profile | Promise<Profile>;
     projects(params?: Nullable<SearchPaginationInput>): PaginatedProjects | Promise<PaginatedProjects>;
     projectsByUserId(userId: string, params?: Nullable<SearchPaginationInput>): PaginatedProjects | Promise<PaginatedProjects>;
+    projectsByCvId(cvId: string, params?: Nullable<SearchPaginationInput>): PaginatedProjects | Promise<PaginatedProjects>;
     project(projectId: string): Project | Promise<Project>;
     skillCategories(): SkillCategory[] | Promise<SkillCategory[]>;
     skills(params?: Nullable<SearchPaginationInput>): PaginatedSkills | Promise<PaginatedSkills>;

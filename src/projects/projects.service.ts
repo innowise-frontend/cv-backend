@@ -65,6 +65,30 @@ export class ProjectsService {
     };
   }
 
+  async findAllByCvId(cvId: string, params?: SearchPaginationInput) {
+    const { page, limit, skip } = resolvePagination(params);
+    const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    const sortBy = params?.sort_by?.toLowerCase() || "created_at";
+
+    const query = this.projectsRepository.createQueryBuilder("project").where("project.cv_id = :cvId", { cvId });
+    
+    if (params?.search?.trim()) {
+      query.andWhere("project.name ILIKE :search", { search: `%${params.search.trim()}%` });
+    }
+
+    query.orderBy(`project.${sortBy}`, sortOrder).skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      total_pages: Math.ceil(total / limit),
+    };
+  }
+
   async findOneById(projectId: string) {
     return await this.projectsRepository.findOne({ where: { id: projectId } });
   }
