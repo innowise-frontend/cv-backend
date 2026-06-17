@@ -1,5 +1,5 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
-import { ForbiddenException, UseGuards } from "@nestjs/common";
+import { UseGuards } from "@nestjs/common";
 import { Roles } from "src/app/guards/roles.decorator";
 import { OwnUserGuard } from "src/app/guards/own-user.guard";
 import { GetUserId } from "src/app/decorators/get_user_id.decorator";
@@ -42,11 +42,7 @@ export class UsersResolver {
 
   @Roles(UserRole.Admin)
   @Mutation("deleteUser")
-  async deleteUser(@Args("userId") userId: string) {
-    const user = await this.usersService.findOneById(userId);
-    if (user.is_verified) {
-      throw new ForbiddenException("You cannot delete a verified User");
-    }
+  deleteUser(@Args("userId") userId: string) {
     return this.usersService.deleteUser(userId);
   }
 }

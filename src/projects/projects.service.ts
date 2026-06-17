@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ProjectModel } from "./model/project.model";
+import { CvModel } from "src/cvs/model/cv.model";
 import {
   SearchPaginationInput,
   CreateProjectInput,
@@ -46,7 +47,22 @@ export class ProjectsService {
     const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
     const sortBy = params?.sort_by?.toLowerCase() || "created_at";
 
-    const query = this.projectsRepository.createQueryBuilder("project").where("project.user_id = :userId", { userId });
+    const query = this.projectsRepository
+      .createQueryBuilder("project")
+      .where((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select("p.id")
+          .from(CvModel, "cv")
+          .innerJoin("cv.user", "user")
+          .innerJoin("cv.projects", "cvProject")
+          .innerJoin("cvProject.project", "p")
+          .where("user.id = :userId")
+          .getQuery();
+
+        return `project.id IN ${subQuery}`;
+      })
+      .setParameter("userId", userId);
 
     if (params?.search?.trim()) {
       query.andWhere("project.name ILIKE :search", { search: `%${params.search.trim()}%` });
@@ -70,7 +86,21 @@ export class ProjectsService {
     const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
     const sortBy = params?.sort_by?.toLowerCase() || "created_at";
 
-    const query = this.projectsRepository.createQueryBuilder("project").where("project.cv_id = :cvId", { cvId });
+    const query = this.projectsRepository
+      .createQueryBuilder("project")
+      .where((qb) => {
+        const subQuery = qb
+          .subQuery()
+          .select("p.id")
+          .from(CvModel, "cv")
+          .innerJoin("cv.projects", "cvProject")
+          .innerJoin("cvProject.project", "p")
+          .where("cv.id = :cvId")
+          .getQuery();
+
+        return `project.id IN ${subQuery}`;
+      })
+      .setParameter("cvId", cvId);
     
     if (params?.search?.trim()) {
       query.andWhere("project.name ILIKE :search", { search: `%${params.search.trim()}%` });

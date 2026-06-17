@@ -8,7 +8,7 @@ import {
   OneToOne,
   PrimaryColumn,
 } from "typeorm";
-import { Exclude, Expose } from "class-transformer";
+import { Exclude } from "class-transformer";
 import { User, UserRole } from "src/graphql";
 import { CvModel } from "src/cvs/model/cv.model";
 import { ProfileModel } from "src/profile/model/profile.model";
@@ -26,19 +26,19 @@ export class UserModel implements User {
   @Column({ unique: true })
   email: string;
 
-  @Column("boolean", { default: false })
-  is_verified: boolean;
-
   @Column()
   @Exclude()
   password: string;
+
+  @Column("boolean", { default: false })
+  is_verified: boolean;
 
   @OneToOne(() => ProfileModel, { cascade: true, onDelete: "CASCADE" })
   @JoinColumn({ name: "id" })
   profile: ProfileModel;
 
-  @OneToMany(() => CvModel, (cv) => cv.user, { cascade: true })
-  cvs: CvModel[];
+  @Column("enum", { enum: UserRole, default: UserRole.Employee })
+  role: UserRole;
 
   @ManyToOne(() => DepartmentModel, {
     nullable: true,
@@ -48,14 +48,6 @@ export class UserModel implements User {
   @JoinColumn()
   department: DepartmentModel;
 
-  @Expose()
-  get department_name() {
-    if (!this.department) {
-      return null;
-    }
-    return this.department.name;
-  }
-
   @ManyToOne(() => PositionModel, {
     nullable: true,
     eager: true,
@@ -63,7 +55,7 @@ export class UserModel implements User {
   })
   @JoinColumn()
   position: PositionModel;
-
-  @Column("enum", { enum: UserRole, default: UserRole.Employee })
-  role: UserRole;
+  
+  @OneToMany(() => CvModel, (cv) => cv.user, { cascade: true })
+  cvs: CvModel[];
 }

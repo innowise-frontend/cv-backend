@@ -9,11 +9,10 @@ type User {
   email: String!
   is_verified: Boolean!
   profile: Profile!
-  cvs: [Cv!]
-  department: Department
-  department_name: String
-  position: Position
   role: UserRole!
+  department: Department
+  position: Position
+  cvs: [Cv!]
 }
 
 type PaginatedUsers {
@@ -39,9 +38,9 @@ input CreateUserInput {
 
 input UpdateUserInput {
   userId: ID!
-  departmentId: ID
-  positionId: ID
-  role: UserRole
+  departmentId: ID!
+  positionId: ID!
+  role: UserRole!
 }
 
 input ChangePasswordInput {

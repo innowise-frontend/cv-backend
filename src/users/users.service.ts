@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from "@nestjs/common";
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { compare, hash } from "bcrypt";
@@ -16,6 +16,7 @@ const oldPasswordSameNewPassword = new BadRequestException({
 const userNotFound = new NotFoundException("User not found");
 const oldPasswordIncorrect = new BadRequestException({ message: "Old password is incorrect" });
 const confirmPasswordMismatch = new BadRequestException({ message: "Confirm password mismatch" });
+const forbidden = new ForbiddenException("You cannot delete a verified User");
 
 @Injectable()
 export class UsersService {
@@ -61,12 +62,28 @@ export class UsersService {
   }
 
   async findOneById(userId?: string) {
-    return userId
-      ? await this.userRepository.findOne({
-          where: { id: userId },
-          relations: ["profile", "cvs", "department", "position"],
-        })
-      : null;
+    if (!userId) {
+      return null;
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ["profile", "cvs", "department", "position"],
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const [department, position] = await Promise.all([
+      user.department?.id ? this.departmentsService.findOneById(user.department.id) : null,
+      user.position?.id ? this.positionsService.findOneById(user.position.id) : null,
+    ]);
+
+    user.department = department;
+    user.position = position;
+
+    return user;
   }
 
   async findOneByEmail(email: string) {
@@ -149,23 +166,25 @@ export class UsersService {
   }
 
   async updateUser({ userId, departmentId, positionId, role }: UpdateUserInput) {
-    const [user, department, position] = await Promise.all([
-      this.findOneById(userId),
-      this.departmentsService.findOneById(departmentId),
-      this.positionsService.findOneById(positionId),
-    ]);
-    if (role) {
-      user.role = role;
+    const user = await this.findOneById(userId);
+
+    if (!user) {
+      throw userNotFound;
     }
-    Object.assign(user, {
-      department,
-      position,
-    });
+
+    user.role = role;
+    user.department = await this.departmentsService.findOneById(departmentId);
+    user.position = await this.positionsService.findOneById(positionId);
+
     return await this.userRepository.save(user);
   }
 
   async updatePassword(email: string, newPassword: string) {
     const user = await this.findOneByEmail(email);
+
+    if (!user) {
+      throw userNotFound;
+    }
 
     user.password = await hash(newPassword, 10);
 
@@ -173,6 +192,15 @@ export class UsersService {
   }
 
   async deleteUser(userId: string) {
+    const user = await this.findOneById(userId);
+
+    if (!user) {
+      throw userNotFound;
+    }
+    if (user.is_verified) {
+      throw forbidden;
+    }
+
     return await this.profileService.deleteProfile({ userId });
   }
 }

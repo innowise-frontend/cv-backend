@@ -299,9 +299,9 @@ export interface CreateUserInput {
 
 export interface UpdateUserInput {
     userId: string;
-    departmentId?: Nullable<string>;
-    positionId?: Nullable<string>;
-    role?: Nullable<UserRole>;
+    departmentId: string;
+    positionId: string;
+    role: UserRole;
 }
 
 export interface ChangePasswordInput {
@@ -554,11 +554,10 @@ export interface User {
     email: string;
     is_verified: boolean;
     profile: Profile;
-    cvs?: Nullable<Cv[]>;
-    department?: Nullable<Department>;
-    department_name?: Nullable<string>;
-    position?: Nullable<Position>;
     role: UserRole;
+    department?: Nullable<Department>;
+    position?: Nullable<Position>;
+    cvs?: Nullable<Cv[]>;
 }
 
 export interface PaginatedUsers {
