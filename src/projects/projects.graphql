@@ -21,7 +21,6 @@ type PaginatedProjects {
 type Query {
   projects(params: SearchPaginationInput): PaginatedProjects!
   projectsByUserId(userId: ID!, params: SearchPaginationInput): PaginatedProjects!
-  projectsByCvId(cvId: ID!, params: SearchPaginationInput): PaginatedProjects!
   project(projectId: ID!): Project!
 }
 
