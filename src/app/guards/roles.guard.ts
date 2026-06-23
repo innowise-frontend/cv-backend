@@ -1,9 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { CanActivate, ExecutionContext } from "@nestjs/common";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { UserRole } from "src/graphql";
 import { JwtPayload } from "src/auth/strategies/access_token.strategy";
+
+const insufficientPermissions = new ForbiddenException("insufficientPermissions");
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -20,6 +22,10 @@ export class RolesGuard implements CanActivate {
     const req = ctx.getContext().req;
     const jwt = req.user as JwtPayload;
 
-    return roles.includes(jwt.role);
+    if (roles.includes(jwt.role)) {
+      return true;
+    }
+
+    throw insufficientPermissions;
   }
 }

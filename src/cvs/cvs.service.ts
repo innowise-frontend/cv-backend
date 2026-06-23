@@ -1,10 +1,12 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CvModel } from "./model/cv.model";
 import { UsersService } from "../users/users.service";
 import { SearchPaginationInput, CreateCvInput, DeleteCvInput, UpdateCvInput } from "src/graphql";
 import { resolvePagination } from "src/app/util/pagination_logic";
+
+const cvNotFound = new NotFoundException("cvNotFound");
 
 @Injectable()
 export class CvsService {
@@ -73,21 +75,34 @@ export class CvsService {
   }
 
   async findOneById(cvId: string) {
-    return await this.cvRepository.findOne({
+    const cv = await this.cvRepository.findOne({
       where: { id: cvId },
       relations: ["user", "projects"],
     });
+
+    if (!cv) {
+      throw cvNotFound;
+    }
+
+    return cv;
   }
 
   async findOneByIdAndJoin(cvId: string) {
-    return await this.cvRepository.findOne({
+    const cv = await this.cvRepository.findOne({
       where: { id: cvId },
       relations: ["user", "user.profile", "projects", "projects.project"],
     });
+
+    if (!cv) {
+      throw cvNotFound;
+    }
+
+    return cv;
   }
 
   async createCv({ name, education, description, userId }: CreateCvInput) {
     const user = await this.usersService.findOneById(userId);
+
     const cv = this.cvRepository.create({
       name,
       education,
@@ -102,6 +117,7 @@ export class CvsService {
 
   async updateCv({ cvId, name, education, description }: UpdateCvInput) {
     const cv = await this.findOneById(cvId);
+
     cv.name = name;
     cv.education = education;
     cv.description = description;
@@ -109,7 +125,8 @@ export class CvsService {
     return await this.cvRepository.save(cv);
   }
 
-  deleteCv({ cvId }: DeleteCvInput) {
+  async deleteCv({ cvId }: DeleteCvInput) {
+    await this.findOneById(cvId);
     return this.cvRepository.delete(cvId);
   }
 }

@@ -1,7 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { SkillCategoryModel } from "./model/skill_category.model";
+
+const skillCategoryNotFound = new NotFoundException("skillCategoryNotFound");
 
 @Injectable()
 export class SkillCategoriesService {
@@ -19,11 +21,13 @@ export class SkillCategoriesService {
     });
   }
 
-  async findOneById(categoryId?: string) {
-    return categoryId
-      ? await this.skillCategoriesRepository.findOne({
-          where: { id: categoryId },
-        })
-      : null;
+  async findOneById(categoryId: string) {
+    const category = await this.skillCategoriesRepository.findOne({ where: { id: categoryId } });
+
+    if (!category) {
+      throw skillCategoryNotFound;
+    }
+
+    return category;
   }
 }

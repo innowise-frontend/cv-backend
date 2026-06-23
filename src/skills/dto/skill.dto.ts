@@ -3,7 +3,7 @@ import { CreateSkillInput, UpdateSkillInput, DeleteSkillInput } from "src/graphq
 
 export class CreateSkillDto implements CreateSkillInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "nameIsRequired" })
   name: string;
 
   @IsString()
@@ -13,10 +13,12 @@ export class CreateSkillDto implements CreateSkillInput {
 
 export class UpdateSkillDto extends CreateSkillDto implements UpdateSkillInput {
   @IsString()
+  @IsNotEmpty({ message: "skillIdIsRequired" })
   skillId: string;
 }
 
 export class DeleteSkillDto implements DeleteSkillInput {
   @IsString()
+  @IsNotEmpty({ message: "skillIdIsRequired" })
   skillId: string;
 }

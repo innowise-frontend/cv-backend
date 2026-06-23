@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { DepartmentModel } from "./model/department.model";
@@ -9,6 +9,8 @@ import {
   UpdateDepartmentInput,
 } from "src/graphql";
 import { resolvePagination } from "src/app/util/pagination_logic";
+
+const departmentNotFound = new NotFoundException("departmentNotFound");
 
 @Injectable()
 export class DepartmentsService {
@@ -41,8 +43,14 @@ export class DepartmentsService {
     };
   }
 
-  findOneById(id: string) {
-    return id ? this.departmentRepository.findOne({ where: { id } }) : null;
+  async findOneById(id: string) {
+    const department = await this.departmentRepository.findOne({ where: { id } });
+
+    if (!department) {
+      throw departmentNotFound;
+    }
+
+    return department;
   }
 
   async create({ name }: CreateDepartmentInput) {
@@ -57,6 +65,7 @@ export class DepartmentsService {
   }
 
   async delete({ departmentId }: DeleteDepartmentInput) {
+    await this.findOneById(departmentId);
     return await this.departmentRepository.delete(departmentId);
   }
 }

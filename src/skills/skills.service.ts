@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { SearchPaginationInput, CreateSkillInput, UpdateSkillInput } from "src/graphql";
 import { Repository } from "typeorm";
@@ -6,6 +6,8 @@ import { SkillModel } from "./model/skill.model";
 import { DeleteSkillDto } from "./dto/skill.dto";
 import { resolvePagination } from "src/app/util/pagination_logic";
 import { SkillCategoriesService } from "src/skill_categories/skill_categories.service";
+
+const skillNotFound = new NotFoundException("skillNotFound");
 
 @Injectable()
 export class SkillsService {
@@ -44,7 +46,13 @@ export class SkillsService {
   }
 
   async findOneById(id: string) {
-    return await this.skillsRepository.findOne({ where: { id } });
+    const skill = await this.skillsRepository.findOne({ where: { id } });
+
+    if (!skill) {
+      throw skillNotFound;
+    }
+
+    return skill;
   }
 
   async createSkill({ name, categoryId }: CreateSkillInput) {
@@ -73,6 +81,8 @@ export class SkillsService {
   }
 
   async deleteSkill({ skillId }: DeleteSkillDto) {
+    await this.findOneById(skillId);
+
     return await this.skillsRepository.delete(skillId);
   }
 }

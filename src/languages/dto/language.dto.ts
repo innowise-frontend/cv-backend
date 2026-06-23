@@ -7,7 +7,7 @@ export class CreateLanguageDto implements CreateLanguageInput {
   iso2: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "nameIsRequired" })
   name: string;
 
   @IsString()
@@ -17,12 +17,12 @@ export class CreateLanguageDto implements CreateLanguageInput {
 
 export class UpdateLanguageDto extends CreateLanguageDto implements UpdateLanguageInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "languageIdIsRequired" })
   languageId: string;
 }
 
 export class DeleteLanguageDto implements DeleteLanguageInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "languageIdIsRequired" })
   languageId: string;
 }

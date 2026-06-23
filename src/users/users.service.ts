@@ -1,4 +1,10 @@
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from "@nestjs/common";
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  ForbiddenException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { compare, hash } from "bcrypt";
@@ -10,13 +16,11 @@ import { PositionsService } from "src/positions/positions.service";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { resolvePagination } from "src/app/util/pagination_logic";
 
-const oldPasswordSameNewPassword = new BadRequestException({
-  message: "Old password is the same as the new password",
-});
-const userNotFound = new NotFoundException("User not found");
-const oldPasswordIncorrect = new BadRequestException({ message: "Old password is incorrect" });
-const confirmPasswordMismatch = new BadRequestException({ message: "Confirm password mismatch" });
-const forbidden = new ForbiddenException("You cannot delete a verified User");
+const oldPasswordSameNewPassword = new BadRequestException("oldPasswordSameNewPassword");
+const userNotFound = new NotFoundException("userNotFound");
+const oldPasswordIncorrect = new UnauthorizedException("oldPasswordIncorrect");
+const confirmPasswordMismatch = new BadRequestException("confirmPasswordMismatch");
+const cannotDeleteVerifiedUser = new ForbiddenException("cannotDeleteVerifiedUser");
 
 @Injectable()
 export class UsersService {
@@ -61,18 +65,14 @@ export class UsersService {
     };
   }
 
-  async findOneById(userId?: string) {
-    if (!userId) {
-      return null;
-    }
-
+  async findOneById(userId: string) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ["profile", "cvs", "department", "position"],
     });
 
     if (!user) {
-      return null;
+      throw userNotFound;
     }
 
     const [department, position] = await Promise.all([
@@ -86,11 +86,21 @@ export class UsersService {
     return user;
   }
 
-  async findOneByEmail(email: string) {
+  async findOneByEmailOptional(email: string) {
     return await this.userRepository.findOne({
       where: { email },
       relations: ["profile"],
     });
+  }
+
+  async findOneByEmail(email: string) {
+    const user = await this.findOneByEmailOptional(email);
+
+    if (!user) {
+      throw userNotFound;
+    }
+
+    return user;
   }
 
   async signup(variables: AuthInput) {
@@ -108,6 +118,7 @@ export class UsersService {
 
   async verifyUser(email: string) {
     const user = await this.findOneByEmail(email);
+
     user.is_verified = true;
     return await this.userRepository.save(user);
   }
@@ -122,20 +133,14 @@ export class UsersService {
 
     const user = await this.findOneById(userId);
 
-    if (!user) {
-      throw userNotFound;
-    }
-
     if (!(await compare(oldPassword, user.password))) {
       throw oldPasswordIncorrect;
     }
-
     if (newPassword !== confirmPassword) {
       throw confirmPasswordMismatch;
     }
 
     user.password = await hash(newPassword, 10);
-
     return await this.userRepository.save(user);
   }
 
@@ -168,10 +173,6 @@ export class UsersService {
   async updateUser({ userId, departmentId, positionId, role }: UpdateUserInput) {
     const user = await this.findOneById(userId);
 
-    if (!user) {
-      throw userNotFound;
-    }
-
     user.role = role;
     user.department = await this.departmentsService.findOneById(departmentId);
     user.position = await this.positionsService.findOneById(positionId);
@@ -182,23 +183,15 @@ export class UsersService {
   async updatePassword(email: string, newPassword: string) {
     const user = await this.findOneByEmail(email);
 
-    if (!user) {
-      throw userNotFound;
-    }
-
     user.password = await hash(newPassword, 10);
-
     return await this.userRepository.save(user);
   }
 
   async deleteUser(userId: string) {
     const user = await this.findOneById(userId);
 
-    if (!user) {
-      throw userNotFound;
-    }
     if (user.is_verified) {
-      throw forbidden;
+      throw cannotDeleteVerifiedUser;
     }
 
     return await this.profileService.deleteProfile({ userId });

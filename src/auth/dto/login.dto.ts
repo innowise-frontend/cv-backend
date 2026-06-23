@@ -2,10 +2,10 @@ import { IsEmail, IsNotEmpty, IsString } from "class-validator";
 import { AuthInput } from "src/graphql";
 
 export class LoginDto implements AuthInput {
-  @IsEmail()
+  @IsEmail({}, { message: "invalidEmail" })
   email: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "passwordIsRequired" })
   password: string;
 }

@@ -20,7 +20,7 @@ export class PaginationDto {
   search?: string;
 
   @IsOptional()
-  @IsIn(["ASC", "DESC"])
+  @IsIn(["ASC", "DESC"], { message: "invalidSortOrder" })
   @IsString()
   sort_order?: "ASC" | "DESC";
 

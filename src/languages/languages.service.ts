@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { LanguageModel } from "./model/language.model";
@@ -9,6 +9,8 @@ import {
   UpdateLanguageInput,
 } from "src/graphql";
 import { resolvePagination } from "src/app/util/pagination_logic";
+
+const languageNotFound = new NotFoundException("languageNotFound");
 
 @Injectable()
 export class LanguagesService {
@@ -44,7 +46,13 @@ export class LanguagesService {
   }
 
   async findOneById(id: string) {
-    return await this.languageRepository.findOne({ where: { id } });
+    const language = await this.languageRepository.findOne({ where: { id } });
+
+    if (!language) {
+      throw languageNotFound;
+    }
+
+    return language;
   }
 
   async createLanguage({ name, iso2, native_name }: CreateLanguageInput) {
@@ -59,6 +67,7 @@ export class LanguagesService {
 
   async updateLanguage({ languageId, name, iso2, native_name }: UpdateLanguageInput) {
     const language = await this.findOneById(languageId);
+
     language.name = name;
     language.iso2 = iso2;
     language.native_name = native_name;
@@ -67,6 +76,7 @@ export class LanguagesService {
   }
 
   async deleteLanguage({ languageId }: DeleteLanguageInput) {
+    await this.findOneById(languageId);
     return await this.languageRepository.delete(languageId);
   }
 }

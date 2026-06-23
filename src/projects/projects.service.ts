@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ProjectModel } from "./model/project.model";
@@ -9,6 +9,8 @@ import {
   DeleteProjectInput,
 } from "src/graphql";
 import { resolvePagination } from "src/app/util/pagination_logic";
+
+const projectNotFound = new NotFoundException("projectNotFound");
 
 @Injectable()
 export class ProjectsService {
@@ -42,7 +44,13 @@ export class ProjectsService {
   }
 
   async findOneById(projectId: string) {
-    return await this.projectsRepository.findOne({ where: { id: projectId } });
+    const project = await this.projectsRepository.findOne({ where: { id: projectId } });
+
+    if (!project) {
+      throw projectNotFound;
+    }
+
+    return project;
   }
 
   async createProject({
@@ -89,6 +97,7 @@ export class ProjectsService {
   }
 
   async deleteProject({ projectId }: DeleteProjectInput) {
+    await this.findOneById(projectId);
     return await this.projectsRepository.delete(projectId);
   }
 }

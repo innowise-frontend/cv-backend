@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   ServiceUnavailableException,
   UnauthorizedException,
@@ -19,11 +20,11 @@ import {
 import { JwtPayload } from "./strategies/access_token.strategy";
 import { randomBytesAsync } from "src/app/util/random_bytes_async";
 
-const invalidCredentials = new BadRequestException({ message: "Invalid credentials" });
-const confirmPasswordMismatch = new BadRequestException({ message: "Confirm password mismatch" });
-const userAlreadyExists = new BadRequestException({ message: "User already exists" });
-const failedToSendEmail = new ServiceUnavailableException({ message: "Failed to send email" });
-const actionExpired = new UnauthorizedException({ message: "Action expired" });
+const invalidCredentials = new UnauthorizedException("invalidCredentials");
+const confirmPasswordMismatch = new BadRequestException("confirmPasswordMismatch");
+const userAlreadyExists = new ConflictException("userAlreadyExists");
+const failedToSendEmail = new ServiceUnavailableException("failedToSendEmail");
+const actionExpired = new UnauthorizedException("actionExpired");
 
 @Injectable()
 export class AuthService {
@@ -34,7 +35,7 @@ export class AuthService {
   ) {}
 
   private async validateEmail(email: string) {
-    const user = await this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findOneByEmailOptional(email);
 
     if (user) {
       throw userAlreadyExists;
@@ -48,11 +49,17 @@ export class AuthService {
   }
 
   private async validatePassword({ email, password }: AuthInput) {
-    const user = await this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findOneByEmailOptional(email);
 
-    if (user && (await compare(password, user.password))) {
-      return user;
+    if (!user) {
+      throw invalidCredentials;
     }
+
+    if (!(await compare(password, user.password))) {
+      throw invalidCredentials;
+    }
+
+    return user;
   }
 
   private async signJwt(user: User): Promise<UpdateTokenResult> {
@@ -72,21 +79,11 @@ export class AuthService {
 
   async updateJwt(userId: string) {
     const user = await this.usersService.findOneById(userId);
-
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-
     return await this.signJwt(user);
   }
 
   async login({ email, password }: AuthInput) {
     const user = await this.validatePassword({ email, password });
-
-    if (!user) {
-      throw invalidCredentials;
-    }
-
     const tokens = await this.signJwt(user);
 
     return { user, ...tokens };
@@ -109,7 +106,7 @@ export class AuthService {
   }
 
   async forgotPassword({ email }: ForgotPasswordInput, origin: string) {
-    const user = await this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findOneByEmailOptional(email);
 
     if (!user) {
       throw failedToSendEmail;
@@ -128,8 +125,6 @@ export class AuthService {
     await this.mailService.sendResetPasswordEmail(email, url).catch(() => {
       throw failedToSendEmail;
     });
-
-    return;
   }
 
   async resetPassword({ newPassword, confirmPassword }: ResetPasswordInput, token: string) {

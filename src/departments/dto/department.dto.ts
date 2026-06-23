@@ -3,18 +3,18 @@ import { CreateDepartmentInput, DeleteDepartmentInput, UpdateDepartmentInput } f
 
 export class CreateDepartmentDto implements CreateDepartmentInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "nameIsRequired" })
   name: string;
 }
 
 export class UpdateDepartmentDto extends CreateDepartmentDto implements UpdateDepartmentInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "departmentIdIsRequired" })
   departmentId: string;
 }
 
 export class DeleteDepartmentDto implements DeleteDepartmentInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "departmentIdIsRequired" })
   departmentId: string;
 }

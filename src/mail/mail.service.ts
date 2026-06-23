@@ -1,10 +1,12 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { MailerService } from "@nestjs-modules/mailer";
 import { VerifyMailInput } from "src/graphql";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MailModel } from "./model/mail.model";
 import { UsersService } from "src/users/users.service";
 import { Repository } from "typeorm";
+
+const mailNotFound = new NotFoundException("mailNotFound");
 
 @Injectable()
 export class MailService {
@@ -25,6 +27,11 @@ export class MailService {
 
   async sendVerificationEmail(email: string, url: string) {
     let mail = await this.findOneByEmail(email);
+
+    if (!mail) {
+      throw mailNotFound;
+    }
+
     const otp = this.createOneTimePassword();
 
     if (mail) {
@@ -52,13 +59,12 @@ export class MailService {
       where: { email, otp },
     });
 
-    if (mail) {
-      await this.mailRepository.delete(mail.id);
-      await this.usersService.verifyUser(mail.email);
-      return;
+    if (!mail) {
+      throw mailNotFound;
     }
 
-    throw new BadRequestException({ message: "Invalid credentials" });
+    await this.mailRepository.delete(mail.id);
+    await this.usersService.verifyUser(mail.email);
   }
 
   async sendResetPasswordEmail(email: string, url: string) {

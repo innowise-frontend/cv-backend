@@ -1,10 +1,12 @@
-import { Injectable, BadRequestException } from "@nestjs/common";
+import { Injectable, ConflictException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { AddCvSkillInput, DeleteCvSkillInput, UpdateCvSkillInput } from "../graphql";
 import { CvModel } from "src/cvs/model/cv.model";
 
-const skillHasBeenAdded = new BadRequestException("Skill has already been added");
+const skillHasBeenAdded = new ConflictException("skillHasBeenAdded");
+const cvNotFound = new NotFoundException("cvNotFound");
+
 @Injectable()
 export class CvSkillsService {
   constructor(
@@ -12,12 +14,19 @@ export class CvSkillsService {
     private readonly cvRepository: Repository<CvModel>,
   ) {}
 
-  findOneById(cvId: string) {
-    return this.cvRepository.findOne({ where: { id: cvId } });
+  async findOneById(cvId: string) {
+    const cv = await this.cvRepository.findOne({ where: { id: cvId } });
+
+    if (!cv) {
+      throw cvNotFound;
+    }
+
+    return cv;
   }
 
   async addCvSkill({ cvId, name, categoryId, mastery }: AddCvSkillInput) {
     const cv = await this.findOneById(cvId);
+
     const index = cv.skills.findIndex((skill) => skill.name === name);
 
     if (index === -1) {
@@ -31,6 +40,7 @@ export class CvSkillsService {
 
   async updateCvSkill({ cvId, name, categoryId, mastery }: UpdateCvSkillInput) {
     const cv = await this.findOneById(cvId);
+
     const index = cv.skills.findIndex((skill) => skill.name === name);
 
     if (index !== -1) {

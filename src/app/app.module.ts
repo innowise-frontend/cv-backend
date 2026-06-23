@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { APP_GUARD } from "@nestjs/core";
+import { APP_FILTER, APP_GUARD } from "@nestjs/core";
 import { AuthModule } from "../auth/auth.module";
 import { UsersModule } from "../users/users.module";
 import { ProfileModule } from "../profile/profile.module";
@@ -21,6 +21,7 @@ import { Void } from "./void.scalar";
 import { RolesGuard } from "./guards/roles.guard";
 import { ComplexityPlugin } from "./complexity.plugin";
 import { AccessTokenGuard } from "src/auth/guards/access_token.guard";
+import { AllExceptionsFilter } from "./filters/all-exceptions.filter";
 
 @Module({
   imports: [
@@ -59,6 +60,10 @@ import { AccessTokenGuard } from "src/auth/guards/access_token.guard";
   ],
   providers: [
     ComplexityPlugin,
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
     {
       provide: APP_GUARD,
       useClass: AccessTokenGuard,

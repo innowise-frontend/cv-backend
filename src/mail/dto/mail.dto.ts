@@ -3,7 +3,7 @@ import { VerifyMailInput } from "src/graphql";
 
 export class VerifyMailDto implements VerifyMailInput {
   @IsString()
-  @IsNotEmpty()
-  @Length(6, 6)
+  @IsNotEmpty({ message: "otpIsRequired" })
+  @Length(6, 6, { message: "shouldBe6Digits" })
   otp: string;
 }

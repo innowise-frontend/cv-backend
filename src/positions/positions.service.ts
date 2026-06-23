@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { PositionModel } from "./model/position.model";
@@ -9,6 +9,8 @@ import {
   SearchPaginationInput,
 } from "src/graphql";
 import { resolvePagination } from "src/app/util/pagination_logic";
+
+const positionNotFound = new NotFoundException("positionNotFound");
 
 @Injectable()
 export class PositionsService {
@@ -42,7 +44,13 @@ export class PositionsService {
   }
 
   async findOneById(id: string) {
-    return id ? await this.positionRepository.findOne({ where: { id } }) : null;
+    const position = await this.positionRepository.findOne({ where: { id } });
+
+    if (!position) {
+      throw positionNotFound;
+    }
+
+    return position;
   }
 
   async create({ name }: CreatePositionInput) {
@@ -57,6 +65,7 @@ export class PositionsService {
   }
 
   async delete({ positionId }: DeletePositionInput) {
+    await this.findOneById(positionId);
     return await this.positionRepository.delete(positionId);
   }
 }

@@ -3,7 +3,7 @@ import { CreateCvInput, UpdateCvInput, DeleteCvInput } from "src/graphql";
 
 export class CreateCvDto implements CreateCvInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "nameIsRequired" })
   name: string;
 
   @IsString()
@@ -11,22 +11,22 @@ export class CreateCvDto implements CreateCvInput {
   education: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "descriptionIsRequired" })
   description: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "userIdIsRequired" })
   @IsOptional()
   userId: string;
 }
 
 export class UpdateCvDto implements UpdateCvInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "cvIdIsRequired" })
   cvId: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "nameIsRequired" })
   name: string;
 
   @IsString()
@@ -34,12 +34,12 @@ export class UpdateCvDto implements UpdateCvInput {
   education: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "descriptionIsRequired" })
   description: string;
 }
 
 export class DeleteCvDto implements DeleteCvInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "cvIdIsRequired" })
   cvId: string;
 }
