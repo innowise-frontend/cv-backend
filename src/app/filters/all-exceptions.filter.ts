@@ -1,5 +1,4 @@
 import {
-  ArgumentsHost,
   Catch,
   HttpException,
   InternalServerErrorException,
@@ -8,7 +7,7 @@ import { GqlExceptionFilter } from "@nestjs/graphql";
 
 @Catch()
 export class AllExceptionsFilter implements GqlExceptionFilter {
-  catch(exception: unknown, _host: ArgumentsHost) {
+  catch(exception: unknown) {
     if (exception instanceof HttpException) {
       return exception;
     }
