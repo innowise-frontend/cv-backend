@@ -27,11 +27,6 @@ export class MailService {
 
   async sendVerificationEmail(email: string, url: string) {
     let mail = await this.findOneByEmail(email);
-
-    if (!mail) {
-      throw mailNotFound;
-    }
-
     const otp = this.createOneTimePassword();
 
     if (mail) {
