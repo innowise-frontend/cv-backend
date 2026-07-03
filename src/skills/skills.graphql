@@ -2,24 +2,32 @@ type Skill {
   id: ID!
   created_at: String!
   name: String!
-  category: SkillCategory
+  category: SkillCategory!
   category_name: String
   category_parent_name: String
 }
 
+type PaginatedSkills {
+  items: [Skill!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+  total_pages: Int!
+}
+
 type Query {
-  skills: [Skill!]!
+  skills(params: SearchPaginationInput): PaginatedSkills!
 }
 
 input CreateSkillInput {
   name: String!
-  categoryId: ID
+  categoryId: ID!
 }
 
 input UpdateSkillInput {
   skillId: ID!
   name: String!
-  categoryId: ID
+  categoryId: ID!
 }
 
 input DeleteSkillInput {

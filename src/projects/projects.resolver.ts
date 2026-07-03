@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Roles } from "src/app/guards/roles.decorator";
-import { UserRole } from "src/graphql";
+import { SearchPaginationInput, UserRole } from "src/graphql";
 import { CreateProjectDto, UpdateProjectDto, DeleteProjectDto } from "./dto/project.dto";
 import { ProjectsService } from "./projects.service";
 
@@ -9,8 +9,8 @@ export class ProjectsResolver {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Query("projects")
-  projects() {
-    return this.projectsService.findAll();
+  projects(@Args("params") params: SearchPaginationInput) {
+    return this.projectsService.findAll(params);
   }
 
   @Query("project")

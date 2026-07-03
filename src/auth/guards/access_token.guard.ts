@@ -1,7 +1,9 @@
-import { ExecutionContext, Injectable } from "@nestjs/common";
+import { ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { AuthGuard } from "@nestjs/passport";
+
+const unauthorized = new UnauthorizedException("unauthorized");
 
 @Injectable()
 export class AccessTokenGuard extends AuthGuard("jwt") {
@@ -21,5 +23,13 @@ export class AccessTokenGuard extends AuthGuard("jwt") {
     }
 
     return super.canActivate(context);
+  }
+
+  handleRequest<TUser>(err: Error | null, user: TUser | false): TUser {
+    if (err || !user) {
+      throw unauthorized;
+    }
+
+    return user;
   }
 }

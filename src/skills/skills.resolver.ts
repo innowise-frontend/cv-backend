@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Roles } from "src/app/guards/roles.decorator";
-import { UserRole } from "src/graphql";
+import { SearchPaginationInput, UserRole } from "src/graphql";
 import { SkillsService } from "./skills.service";
 import { CreateSkillDto, UpdateSkillDto, DeleteSkillDto } from "./dto/skill.dto";
 
@@ -9,8 +9,8 @@ export class SkillsResolver {
   constructor(private readonly skillsService: SkillsService) {}
 
   @Query("skills")
-  skills() {
-    return this.skillsService.findAll();
+  skills(@Args("params", { nullable: true }) params?: SearchPaginationInput) {
+    return this.skillsService.findAll(params);
   }
 
   @Roles(UserRole.Admin)

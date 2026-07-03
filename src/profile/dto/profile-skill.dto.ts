@@ -10,22 +10,23 @@ import { SkillMasteryDto } from "src/skills/dto/skill-mastery.dto";
 
 export class AddProfileSkillDto extends SkillMasteryDto implements AddProfileSkillInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "userIdIsRequired" })
   userId: string;
 }
 
 export class UpdateProfileSkillDto extends SkillMasteryDto implements UpdateProfileSkillInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "userIdIsRequired" })
   userId: string;
 }
 
 export class DeleteProfileSkillDto implements DeleteProfileSkillInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "userIdIsRequired" })
   userId: string;
 
   @IsArray()
   @Type(() => String)
+  @IsNotEmpty({ message: "nameIsRequired" })
   name: string[];
 }

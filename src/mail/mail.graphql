@@ -11,4 +11,5 @@ input VerifyMailInput {
 
 type Mutation {
   verifyMail(mail: VerifyMailInput!): Void
+  sendVerification(email: String!): Void
 }

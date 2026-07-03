@@ -1,35 +1,58 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { CreateSkillInput, UpdateSkillInput } from "src/graphql";
-import { In, Repository } from "typeorm";
+import { SearchPaginationInput, CreateSkillInput, UpdateSkillInput } from "src/graphql";
+import { Repository } from "typeorm";
 import { SkillModel } from "./model/skill.model";
 import { DeleteSkillDto } from "./dto/skill.dto";
+import { resolvePagination } from "src/app/util/pagination_logic";
 import { SkillCategoriesService } from "src/skill_categories/skill_categories.service";
+
+const skillNotFound = new NotFoundException("skillNotFound");
 
 @Injectable()
 export class SkillsService {
   constructor(
     @InjectRepository(SkillModel)
     private readonly skillsRepository: Repository<SkillModel>,
-    private readonly skillCategoriesService: SkillCategoriesService
+    private readonly skillCategoriesService: SkillCategoriesService,
   ) {}
 
-  findAll() {
-    return this.skillsRepository.find({
-      relations: ["category.parent"],
-    });
+  async findAll(params?: SearchPaginationInput) {
+    const { page, limit, skip } = resolvePagination(params);
+    const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    const sortBy = params?.sort_by?.toLowerCase() || "created_at";
+
+    const query = this.skillsRepository
+      .createQueryBuilder("skill")
+      .leftJoinAndSelect("skill.category", "category");
+
+    if (params?.search?.trim()) {
+      query.andWhere("skill.name ILIKE :search OR category.name ILIKE :search", {
+        search: `%${params.search.trim()}%`,
+      });
+    }
+
+    query.orderBy(`skill.${sortBy}`, sortOrder).skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      total_pages: Math.ceil(total / limit),
+    };
   }
 
-  findMany(ids: string[]) {
-    return this.skillsRepository.find({
-      where: { id: In(ids) },
-    });
-  }
+  async findOneById(id: string) {
+    const skill = await this.skillsRepository.findOne({ where: { id } });
 
-  findOneById(id: string) {
-    return this.skillsRepository.findOne({
-      where: { id },
-    });
+    if (!skill) {
+      throw skillNotFound;
+    }
+
+    return skill;
   }
 
   async createSkill({ name, categoryId }: CreateSkillInput) {
@@ -40,7 +63,7 @@ export class SkillsService {
       category,
     });
 
-    return this.skillsRepository.save(skill);
+    return await this.skillsRepository.save(skill);
   }
 
   async updateSkill({ skillId, name, categoryId }: UpdateSkillInput) {
@@ -54,10 +77,12 @@ export class SkillsService {
       category,
     });
 
-    return this.skillsRepository.save(skill);
+    return await this.skillsRepository.save(skill);
   }
 
-  deleteSkill({ skillId }: DeleteSkillDto) {
-    return this.skillsRepository.delete(skillId);
+  async deleteSkill({ skillId }: DeleteSkillDto) {
+    await this.findOneById(skillId);
+
+    return await this.skillsRepository.delete(skillId);
   }
 }

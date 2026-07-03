@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Mutation, Resolver } from "@nestjs/graphql";
 import { Public } from "./guards/public.decorator";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
@@ -16,7 +16,7 @@ export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
-  @Query("login")
+  @Mutation("login")
   login(@Args("auth") args: LoginDto) {
     return this.authService.login(args);
   }
@@ -30,6 +30,7 @@ export class AuthResolver {
   @Public()
   @Mutation("forgotPassword")
   forgotPassword(@Args("auth") args: ForgotPasswordDto, @GetOrigin() origin: string) {
+    console.log(origin);
     return this.authService.forgotPassword(args, origin);
   }
 

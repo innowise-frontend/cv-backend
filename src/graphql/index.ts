@@ -31,9 +31,23 @@ export enum UserRole {
     Admin = "Admin"
 }
 
+export interface SearchPaginationInput {
+    search?: Nullable<string>;
+    sort_order?: Nullable<string>;
+    sort_by?: Nullable<string>;
+    page?: Nullable<number>;
+    limit?: Nullable<number>;
+}
+
 export interface AuthInput {
     email: string;
     password: string;
+}
+
+export interface SignupInput {
+    email: string;
+    password: string;
+    confirmPassword: string;
 }
 
 export interface ForgotPasswordInput {
@@ -42,6 +56,7 @@ export interface ForgotPasswordInput {
 
 export interface ResetPasswordInput {
     newPassword: string;
+    confirmPassword: string;
 }
 
 export interface AddCvProjectInput {
@@ -261,13 +276,13 @@ export interface SkillMasteryInput {
 
 export interface CreateSkillInput {
     name: string;
-    categoryId?: Nullable<string>;
+    categoryId: string;
 }
 
 export interface UpdateSkillInput {
     skillId: string;
     name: string;
-    categoryId?: Nullable<string>;
+    categoryId: string;
 }
 
 export interface DeleteSkillInput {
@@ -277,7 +292,6 @@ export interface DeleteSkillInput {
 export interface CreateUserInput {
     auth: AuthInput;
     profile: CreateProfileInput;
-    cvsIds: string[];
     departmentId?: Nullable<string>;
     positionId?: Nullable<string>;
     role: UserRole;
@@ -285,10 +299,15 @@ export interface CreateUserInput {
 
 export interface UpdateUserInput {
     userId: string;
-    cvsIds?: Nullable<string[]>;
-    departmentId?: Nullable<string>;
-    positionId?: Nullable<string>;
-    role?: Nullable<UserRole>;
+    departmentId: string;
+    positionId: string;
+    role: UserRole;
+}
+
+export interface ChangePasswordInput {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
 }
 
 export interface DeleteResult {
@@ -301,30 +320,14 @@ export interface AuthResult {
     refresh_token: string;
 }
 
-export interface IQuery {
-    login(auth: AuthInput): AuthResult | Promise<AuthResult>;
-    cvs(): Cv[] | Promise<Cv[]>;
-    cv(cvId: string): Cv | Promise<Cv>;
-    departments(): Department[] | Promise<Department[]>;
-    languages(): Nullable<Language>[] | Promise<Nullable<Language>[]>;
-    positions(): Position[] | Promise<Position[]>;
-    position(id: string): Position | Promise<Position>;
-    profile(userId: string): Profile | Promise<Profile>;
-    projects(): Project[] | Promise<Project[]>;
-    project(projectId: string): Project | Promise<Project>;
-    skillCategories(): SkillCategory[] | Promise<SkillCategory[]>;
-    skills(): Skill[] | Promise<Skill[]>;
-    users(): User[] | Promise<User[]>;
-    user(userId: string): User | Promise<User>;
-}
-
 export interface UpdateTokenResult {
     access_token: string;
     refresh_token: string;
 }
 
 export interface IMutation {
-    signup(auth: AuthInput): AuthResult | Promise<AuthResult>;
+    login(auth: AuthInput): AuthResult | Promise<AuthResult>;
+    signup(auth: SignupInput): AuthResult | Promise<AuthResult>;
     forgotPassword(auth: ForgotPasswordInput): Nullable<Void> | Promise<Nullable<Void>>;
     resetPassword(auth: ResetPasswordInput): Nullable<Void> | Promise<Nullable<Void>>;
     updateToken(): UpdateTokenResult | Promise<UpdateTokenResult>;
@@ -345,6 +348,7 @@ export interface IMutation {
     updateLanguage(language: UpdateLanguageInput): Language | Promise<Language>;
     deleteLanguage(language: DeleteLanguageInput): DeleteResult | Promise<DeleteResult>;
     verifyMail(mail: VerifyMailInput): Nullable<Void> | Promise<Nullable<Void>>;
+    sendVerification(email: string): Nullable<Void> | Promise<Nullable<Void>>;
     createPosition(position: CreatePositionInput): Position | Promise<Position>;
     updatePosition(position: UpdatePositionInput): Position | Promise<Position>;
     deletePosition(position: DeletePositionInput): DeleteResult | Promise<DeleteResult>;
@@ -366,6 +370,7 @@ export interface IMutation {
     createUser(user: CreateUserInput): User | Promise<User>;
     updateUser(user: UpdateUserInput): User | Promise<User>;
     deleteUser(userId: string): DeleteResult | Promise<DeleteResult>;
+    changePassword(args: ChangePasswordInput): User | Promise<User>;
 }
 
 export interface CvProject {
@@ -394,10 +399,45 @@ export interface Cv {
     languages: LanguageProficiency[];
 }
 
+export interface PaginatedCvs {
+    items: Cv[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+}
+
+export interface IQuery {
+    cvs(params?: Nullable<SearchPaginationInput>): PaginatedCvs | Promise<PaginatedCvs>;
+    cvsByUserId(userId: string, params?: Nullable<SearchPaginationInput>): PaginatedCvs | Promise<PaginatedCvs>;
+    cv(cvId: string): Cv | Promise<Cv>;
+    departments(params?: Nullable<SearchPaginationInput>): PaginatedDepartments | Promise<PaginatedDepartments>;
+    languages(params?: Nullable<SearchPaginationInput>): PaginatedLanguages | Promise<PaginatedLanguages>;
+    positions(params?: Nullable<SearchPaginationInput>): PaginatedPositions | Promise<PaginatedPositions>;
+    position(id: string): Position | Promise<Position>;
+    me(): Profile | Promise<Profile>;
+    profile(userId: string): Profile | Promise<Profile>;
+    projects(params?: Nullable<SearchPaginationInput>): PaginatedProjects | Promise<PaginatedProjects>;
+    projectsByUserId(userId: string, params?: Nullable<SearchPaginationInput>): PaginatedProjects | Promise<PaginatedProjects>;
+    project(projectId: string): Project | Promise<Project>;
+    skillCategories(): SkillCategory[] | Promise<SkillCategory[]>;
+    skills(params?: Nullable<SearchPaginationInput>): PaginatedSkills | Promise<PaginatedSkills>;
+    users(params?: Nullable<SearchPaginationInput>): PaginatedUsers | Promise<PaginatedUsers>;
+    user(userId: string): User | Promise<User>;
+}
+
 export interface Department {
     id: string;
     created_at: string;
     name: string;
+}
+
+export interface PaginatedDepartments {
+    items: Department[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
 }
 
 export interface Language {
@@ -406,6 +446,14 @@ export interface Language {
     iso2: string;
     name: string;
     native_name?: Nullable<string>;
+}
+
+export interface PaginatedLanguages {
+    items: Language[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
 }
 
 export interface LanguageProficiency {
@@ -426,6 +474,14 @@ export interface Position {
     name: string;
 }
 
+export interface PaginatedPositions {
+    items: Position[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+}
+
 export interface Profile {
     id: string;
     created_at: string;
@@ -435,6 +491,9 @@ export interface Profile {
     avatar?: Nullable<string>;
     skills: SkillMastery[];
     languages: LanguageProficiency[];
+    email?: Nullable<string>;
+    is_verified?: Nullable<boolean>;
+    role?: Nullable<UserRole>;
 }
 
 export interface Project {
@@ -447,6 +506,14 @@ export interface Project {
     end_date?: Nullable<string>;
     description: string;
     environment: string[];
+}
+
+export interface PaginatedProjects {
+    items: Project[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
 }
 
 export interface SkillCategory {
@@ -467,9 +534,17 @@ export interface Skill {
     id: string;
     created_at: string;
     name: string;
-    category?: Nullable<SkillCategory>;
+    category: SkillCategory;
     category_name?: Nullable<string>;
     category_parent_name?: Nullable<string>;
+}
+
+export interface PaginatedSkills {
+    items: Skill[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
 }
 
 export interface User {
@@ -478,12 +553,18 @@ export interface User {
     email: string;
     is_verified: boolean;
     profile: Profile;
-    cvs?: Nullable<Cv[]>;
-    department?: Nullable<Department>;
-    department_name?: Nullable<string>;
-    position?: Nullable<Position>;
-    position_name?: Nullable<string>;
     role: UserRole;
+    department?: Nullable<Department>;
+    position?: Nullable<Position>;
+    cvs?: Nullable<Cv[]>;
+}
+
+export interface PaginatedUsers {
+    items: User[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
 }
 
 export type Void = any;

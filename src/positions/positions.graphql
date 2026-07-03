@@ -4,8 +4,16 @@ type Position {
   name: String!
 }
 
+type PaginatedPositions {
+  items: [Position!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+  total_pages: Int!
+}
+
 type Query {
-  positions: [Position!]!
+  positions(params: SearchPaginationInput): PaginatedPositions!
   position(id: ID!): Position!
 }
 

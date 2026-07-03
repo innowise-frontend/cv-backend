@@ -14,10 +14,16 @@ import {
 import { UpdateProfileDto } from "./dto/profile.dto";
 import { UseGuards } from "@nestjs/common";
 import { OwnProfileGuard } from "src/app/guards/own-profile.guard";
+import { GetUserId } from "src/app/decorators/get_user_id.decorator";
 
 @Resolver()
 export class ProfileResolver {
   constructor(private readonly profileService: ProfileService) {}
+
+  @Query("me")
+  me(@GetUserId() userId: string) {
+    return this.profileService.me(userId);
+  }
 
   @Query("profile")
   profile(@Args("userId") userId: string) {

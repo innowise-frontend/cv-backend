@@ -3,7 +3,7 @@ import { ExportPdfInput, MarginInput } from "src/graphql";
 
 export class ExportPdfDto implements ExportPdfInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "htmlIsRequired" })
   html: string;
 
   @IsObject()

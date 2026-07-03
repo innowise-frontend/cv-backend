@@ -4,7 +4,7 @@ import { CreateProjectInput, UpdateProjectInput, DeleteProjectInput } from "src/
 
 export class CreateProjectDto implements CreateProjectInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "nameIsRequired" })
   name: string;
 
   @IsString()
@@ -12,13 +12,16 @@ export class CreateProjectDto implements CreateProjectInput {
   description: string;
 
   @IsString()
+  @IsNotEmpty({ message: "domainIsRequired" })
   domain: string;
 
   @IsISO8601()
+  @IsNotEmpty({ message: "startDateIsRequired" })
   start_date: string;
 
   @IsISO8601()
   @IsOptional()
+  @IsNotEmpty({ message: "endDateIsRequired" })
   end_date: string;
 
   @IsArray()
@@ -28,10 +31,12 @@ export class CreateProjectDto implements CreateProjectInput {
 
 export class UpdateProjectDto extends CreateProjectDto implements UpdateProjectInput {
   @IsString()
+  @IsNotEmpty({ message: "projectIdIsRequired" })
   projectId: string;
 }
 
 export class DeleteProjectDto implements DeleteProjectInput {
   @IsString()
+  @IsNotEmpty({ message: "projectIdIsRequired" })
   projectId: string;
 }

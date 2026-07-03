@@ -3,18 +3,18 @@ import { CreatePositionInput, DeletePositionInput, UpdatePositionInput } from "s
 
 export class CreatePositionDto implements CreatePositionInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "nameIsRequired" })
   name: string;
 }
 
 export class UpdatePositionDto extends CreatePositionDto implements UpdatePositionInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "positionIdIsRequired" })
   positionId: string;
 }
 
 export class DeletePositionDto implements DeletePositionInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "positionIdIsRequired" })
   positionId: string;
 }

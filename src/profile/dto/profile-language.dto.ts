@@ -12,7 +12,7 @@ export class AddProfileLanguageDto
   implements AddProfileLanguageInput
 {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "userIdIsRequired" })
   userId: string;
 }
 
@@ -21,16 +21,17 @@ export class UpdateProfileLanguageDto
   implements UpdateProfileLanguageInput
 {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "userIdIsRequired" })
   userId: string;
 }
 
 export class DeleteProfileLanguageDto implements DeleteProfileLanguageInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "userIdIsRequired" })
   userId: string;
 
   @IsArray()
   @Type(() => String)
+  @IsNotEmpty({ message: "nameIsRequired" })
   name: string[];
 }

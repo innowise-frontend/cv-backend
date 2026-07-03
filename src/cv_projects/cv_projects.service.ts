@@ -1,10 +1,20 @@
-import { BadRequestException, forwardRef, Inject, Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ProjectsService } from "../projects/projects.service";
 import { AddCvProjectInput, RemoveCvProjectInput, UpdateCvProjectInput } from "../graphql";
 import { CvProjectModel } from "../cv_projects/model/cv_project.model";
 import { CvModel } from "../cvs/model/cv.model";
+
+const cvNotFound = new NotFoundException("cvNotFound");
+const cvProjectNotFound = new NotFoundException("cvProjectNotFound");
+const projectHasBeenAdded = new ConflictException("projectHasBeenAdded");
 
 @Injectable()
 export class CvProjectsService {
@@ -14,14 +24,20 @@ export class CvProjectsService {
     @InjectRepository(CvProjectModel)
     private readonly cvProjectRepository: Repository<CvProjectModel>,
     @Inject(forwardRef(() => ProjectsService))
-    private readonly projectsService: ProjectsService
+    private readonly projectsService: ProjectsService,
   ) {}
 
-  findOneByIdAndJoin(cvId: string) {
-    return this.cvRepository.findOne({
+  async findOneByIdAndJoin(cvId: string) {
+    const cv = await this.cvRepository.findOne({
       where: { id: cvId },
       relations: ["projects", "projects.project"],
     });
+
+    if (!cv) {
+      throw cvNotFound;
+    }
+
+    return cv;
   }
 
   async addCvProject({
@@ -37,16 +53,8 @@ export class CvProjectsService {
       this.projectsService.findOneById(projectId),
     ]);
 
-    if (!project) {
-      throw new BadRequestException({
-        message: "Project not found",
-      });
-    }
-
     if (cv.projects.find(({ project }) => String(project.id) === projectId)) {
-      throw new BadRequestException({
-        message: "The project has already been added to this resume",
-      });
+      throw projectHasBeenAdded;
     }
 
     const cvProject = this.cvProjectRepository.create({
@@ -73,7 +81,13 @@ export class CvProjectsService {
     responsibilities,
   }: UpdateCvProjectInput) {
     const cv = await this.findOneByIdAndJoin(cvId);
+    await this.projectsService.findOneById(projectId);
+
     const cvProject = cv.projects.find(({ project }) => String(project.id) === projectId);
+
+    if (!cvProject) {
+      throw cvProjectNotFound;
+    }
 
     cvProject.start_date = start_date;
     cvProject.end_date = end_date;

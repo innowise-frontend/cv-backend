@@ -7,9 +7,13 @@ type Profile {
   avatar: String
   skills: [SkillMastery!]!
   languages: [LanguageProficiency!]!
+  email: String
+  is_verified: Boolean
+  role: UserRole
 }
 
 type Query {
+  me: Profile!
   profile(userId: ID!): Profile!
 }
 

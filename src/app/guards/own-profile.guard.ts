@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common";
-import { CanActivate, ExecutionContext } from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { JwtPayload } from "src/auth/strategies/access_token.strategy";
 import { UserRole } from "src/graphql";
+
+const notOwnProfile = new ForbiddenException("notOwnProfile");
 
 @Injectable()
 export class OwnProfileGuard implements CanActivate {
@@ -23,6 +24,7 @@ export class OwnProfileGuard implements CanActivate {
     if (isOwnProfile) {
       return true;
     }
-    return false;
+
+    throw notOwnProfile;
   }
 }

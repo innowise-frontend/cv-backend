@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   ServiceUnavailableException,
   UnauthorizedException,
@@ -10,6 +11,7 @@ import { UsersService } from "../users/users.service";
 import { MailService } from "src/mail/mail.service";
 import {
   AuthInput,
+  SignupInput,
   ForgotPasswordInput,
   ResetPasswordInput,
   UpdateTokenResult,
@@ -18,25 +20,46 @@ import {
 import { JwtPayload } from "./strategies/access_token.strategy";
 import { randomBytesAsync } from "src/app/util/random_bytes_async";
 
-const invalidCredentials = new BadRequestException({ message: "Invalid credentials" });
-const userAlreadyExists = new BadRequestException({ message: "User already exists" });
-const failedToSendEmail = new ServiceUnavailableException({ message: "Failed to send email" });
-const actionExpired = new UnauthorizedException({ message: "Action expired" });
+const invalidCredentials = new UnauthorizedException("invalidCredentials");
+const confirmPasswordMismatch = new BadRequestException("confirmPasswordMismatch");
+const userAlreadyExists = new ConflictException("userAlreadyExists");
+const failedToSendEmail = new ServiceUnavailableException("failedToSendEmail");
+const actionExpired = new UnauthorizedException("actionExpired");
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
   ) {}
 
-  private async validatePassword({ email, password }: AuthInput) {
-    const user = await this.usersService.findOneByEmail(email);
+  private async validateEmail(email: string) {
+    const user = await this.usersService.findOneByEmailOptional(email);
 
-    if (user && (await compare(password, user.password))) {
-      return user;
+    if (user) {
+      throw userAlreadyExists;
     }
+  }
+
+  private validatePasswords(password: string, confirmPassword: string) {
+    if (password !== confirmPassword) {
+      throw confirmPasswordMismatch;
+    }
+  }
+
+  private async validatePassword({ email, password }: AuthInput) {
+    const user = await this.usersService.findOneByEmailOptional(email);
+
+    if (!user) {
+      throw invalidCredentials;
+    }
+
+    if (!(await compare(password, user.password))) {
+      throw invalidCredentials;
+    }
+
+    return user;
   }
 
   private async signJwt(user: User): Promise<UpdateTokenResult> {
@@ -56,52 +79,34 @@ export class AuthService {
 
   async updateJwt(userId: string) {
     const user = await this.usersService.findOneById(userId);
-
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-
-    return this.signJwt(user);
+    return await this.signJwt(user);
   }
 
   async login({ email, password }: AuthInput) {
     const user = await this.validatePassword({ email, password });
-
-    if (!user) {
-      throw invalidCredentials;
-    }
-
     const tokens = await this.signJwt(user);
 
     return { user, ...tokens };
   }
 
-  private async validateEmail({ email }: AuthInput) {
-    const user = await this.usersService.findOneByEmail(email);
-
-    if (user) {
-      throw userAlreadyExists;
-    }
-  }
-
-  async signup({ email, password }: AuthInput, origin: string) {
-    await this.validateEmail({ email, password });
+  async signup({ email, password, confirmPassword }: SignupInput, origin: string) {
+    await this.validateEmail(email);
+    this.validatePasswords(password, confirmPassword);
 
     const user = await this.usersService.signup({ email, password });
     const tokens = await this.signJwt(user);
 
-    // TODO: Update email sending
-    // const url = `${origin}/verify-email`;
+    const url = `${origin}/verify-email`;
 
-    // await this.mailService.sendVerificationEmail(email, url).catch(() => {
-    //   throw failedToSendEmail;
-    // });
+    await this.mailService.sendVerificationEmail(email, url).catch(() => {
+      throw failedToSendEmail;
+    });
 
     return { user, ...tokens };
   }
 
   async forgotPassword({ email }: ForgotPasswordInput, origin: string) {
-    const user = await this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findOneByEmailOptional(email);
 
     if (!user) {
       throw failedToSendEmail;
@@ -117,20 +122,18 @@ export class AuthService {
     const token = await this.jwtService.signAsync(payload, { expiresIn: "10m" });
     const url = `${origin}/reset-password?token=${token}`;
 
-    await this.mailService.sendResetPasswordEmail(email, url).catch((error) => {
+    await this.mailService.sendResetPasswordEmail(email, url).catch(() => {
       throw failedToSendEmail;
     });
-
-    return;
   }
 
-  async resetPassword({ newPassword }: ResetPasswordInput, token: string) {
-    const { email } = await this.jwtService.verifyAsync<JwtPayload>(token).catch(() => {
+  async resetPassword({ newPassword, confirmPassword }: ResetPasswordInput, token: string) {
+    const { email } = await this.jwtService.verifyAsync(token).catch(() => {
       throw actionExpired;
     });
 
-    await this.usersService.updatePassword(email, newPassword);
+    this.validatePasswords(newPassword, confirmPassword);
 
-    return;
+    await this.usersService.updatePassword(email, newPassword);
   }
 }

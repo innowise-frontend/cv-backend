@@ -1,24 +1,20 @@
-import { IsArray, IsEnum, IsOptional, IsString } from "class-validator";
-import { Type } from "class-transformer";
-import { UpdateUserInput } from "src/graphql";
-import { UserRole } from "src/graphql";
+import { IsEnum, IsNotEmpty, IsString } from "class-validator";
+import { UpdateUserInput, UserRole } from "src/graphql";
 
 export class UpdateUserDto implements UpdateUserInput {
   @IsString()
+  @IsNotEmpty({ message: "userIdIsRequired" })
   userId: string;
 
-  @IsArray()
-  @IsOptional()
-  @Type(() => String)
-  cvsIds: string[];
-
   @IsString()
+  @IsNotEmpty({ message: "departmentIdIsRequired" })
   departmentId: string;
 
   @IsString()
+  @IsNotEmpty({ message: "positionIdIsRequired" })
   positionId: string;
 
   @IsEnum(UserRole)
-  @IsOptional()
+  @IsNotEmpty({ message: "roleIsRequired" })
   role: UserRole;
 }

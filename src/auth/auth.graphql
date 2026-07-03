@@ -3,14 +3,16 @@ input AuthInput {
   password: String!
 }
 
+input SignupInput {
+  email: String!
+  password: String!
+  confirmPassword: String!
+}
+
 type AuthResult {
   user: User!
   access_token: String!
   refresh_token: String!
-}
-
-type Query {
-  login(auth: AuthInput!): AuthResult!
 }
 
 input ForgotPasswordInput {
@@ -19,6 +21,7 @@ input ForgotPasswordInput {
 
 input ResetPasswordInput {
   newPassword: String!
+  confirmPassword: String!
 }
 
 type UpdateTokenResult {
@@ -29,7 +32,8 @@ type UpdateTokenResult {
 scalar Void
 
 type Mutation {
-  signup(auth: AuthInput!): AuthResult!
+  login(auth: AuthInput!): AuthResult!
+  signup(auth: SignupInput!): AuthResult!
   forgotPassword(auth: ForgotPasswordInput!): Void
   resetPassword(auth: ResetPasswordInput!): Void
   updateToken: UpdateTokenResult!

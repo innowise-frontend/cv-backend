@@ -1,47 +1,71 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { PositionModel } from "./model/position.model";
-import { CreatePositionInput, UpdatePositionInput, DeletePositionInput } from "src/graphql";
+import {
+  CreatePositionInput,
+  UpdatePositionInput,
+  DeletePositionInput,
+  SearchPaginationInput,
+} from "src/graphql";
+import { resolvePagination } from "src/app/util/pagination_logic";
+
+const positionNotFound = new NotFoundException("positionNotFound");
 
 @Injectable()
 export class PositionsService {
   constructor(
     @InjectRepository(PositionModel)
-    private readonly positionRepository: Repository<PositionModel>
+    private readonly positionRepository: Repository<PositionModel>,
   ) {}
 
-  findAll() {
-    return this.positionRepository.find();
-  }
+  async findAll(params?: SearchPaginationInput) {
+    const { page, limit, skip } = resolvePagination(params);
+    const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    const sortBy = params?.sort_by?.toLowerCase() || "created_at";
 
-  findMany(ids: string[]) {
-    return this.positionRepository.find({
-      where: { id: In(ids) },
-    });
-  }
+    const query = this.positionRepository.createQueryBuilder("position");
 
-  findOneById(id: string) {
-    if (!id) {
-      return null;
+    if (params?.search?.trim()) {
+      query.andWhere("position.name ILIKE :search", { search: `%${params.search.trim()}%` });
     }
-    return this.positionRepository.findOne({
-      where: { id },
-    });
+
+    query.orderBy(`position.${sortBy}`, sortOrder).skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      total_pages: Math.ceil(total / limit),
+    };
   }
 
-  create({ name }: CreatePositionInput) {
+  async findOneById(id: string) {
+    const position = await this.positionRepository.findOne({ where: { id } });
+
+    if (!position) {
+      throw positionNotFound;
+    }
+
+    return position;
+  }
+
+  async create({ name }: CreatePositionInput) {
     const position = this.positionRepository.create({ name });
-    return this.positionRepository.save(position);
+    return await this.positionRepository.save(position);
   }
 
   async update({ positionId, name }: UpdatePositionInput) {
     const position = await this.findOneById(positionId);
     position.name = name;
-    return this.positionRepository.save(position);
+    return await this.positionRepository.save(position);
   }
 
-  delete({ positionId }: DeletePositionInput) {
-    return this.positionRepository.delete(positionId);
+  async delete({ positionId }: DeletePositionInput) {
+    await this.findOneById(positionId);
+    return await this.positionRepository.delete(positionId);
   }
 }

@@ -16,8 +16,16 @@ type Language {
   native_name: String
 }
 
+type PaginatedLanguages {
+  items: [Language!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+  total_pages: Int!
+}
+
 type Query {
-  languages: [Language]!
+  languages(params: SearchPaginationInput): PaginatedLanguages!
 }
 
 input CreateLanguageInput {

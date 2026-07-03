@@ -4,6 +4,9 @@ import { GqlExecutionContext } from "@nestjs/graphql";
 import { JwtPayload } from "src/auth/strategies/access_token.strategy";
 import { UserRole } from "src/graphql";
 
+const cannotAssignAdminRoleToYourself = new ForbiddenException("cannotAssignAdminRoleToYourself");
+const notOwnUser = new ForbiddenException("notOwnUser");
+
 @Injectable()
 export class OwnUserGuard implements CanActivate {
   canActivate(context: ExecutionContext) {
@@ -22,11 +25,12 @@ export class OwnUserGuard implements CanActivate {
       return true;
     }
     if (!isAdmin && isOwnUser && role === UserRole.Admin) {
-      throw new ForbiddenException("You cannot assign the Admin role yourself");
+      throw cannotAssignAdminRoleToYourself;
     }
     if (isOwnUser) {
       return true;
     }
-    return false;
+
+    throw notOwnUser;
   }
 }

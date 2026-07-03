@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Roles } from "src/app/guards/roles.decorator";
-import { UserRole } from "src/graphql";
+import { SearchPaginationInput, UserRole } from "src/graphql";
 import { PositionsService } from "./positions.service";
 import { CreatePositionDto, UpdatePositionDto, DeletePositionDto } from "./dto/position.dto";
 
@@ -9,8 +9,8 @@ export class PositionsResolver {
   constructor(private readonly positionsService: PositionsService) {}
 
   @Query("positions")
-  positions() {
-    return this.positionsService.findAll();
+  positions(@Args("params", { nullable: true }) params?: SearchPaginationInput) {
+    return this.positionsService.findAll(params);
   }
 
   @Roles(UserRole.Admin)

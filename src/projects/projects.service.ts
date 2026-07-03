@@ -1,30 +1,56 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { ProjectModel } from "./model/project.model";
-import { CreateProjectInput, UpdateProjectInput, DeleteProjectInput } from "../graphql";
+import {
+  SearchPaginationInput,
+  CreateProjectInput,
+  UpdateProjectInput,
+  DeleteProjectInput,
+} from "src/graphql";
+import { resolvePagination } from "src/app/util/pagination_logic";
+
+const projectNotFound = new NotFoundException("projectNotFound");
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectRepository(ProjectModel)
-    private readonly projectsRepository: Repository<ProjectModel>
+    private readonly projectsRepository: Repository<ProjectModel>,
   ) {}
 
-  findAll() {
-    return this.projectsRepository.find();
+  async findAll(params?: SearchPaginationInput) {
+    const { page, limit, skip } = resolvePagination(params);
+    const sortOrder = params?.sort_order?.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    const sortBy = params?.sort_by?.toLowerCase() || "created_at";
+
+    const query = this.projectsRepository.createQueryBuilder("project");
+
+    if (params?.search?.trim()) {
+      query.andWhere("project.name ILIKE :search", { search: `%${params.search.trim()}%` });
+    }
+
+    query.orderBy(`project.${sortBy}`, sortOrder).skip(skip).take(limit);
+
+    const [items, total] = await query.getManyAndCount();
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      total_pages: Math.ceil(total / limit),
+    };
   }
 
-  findMany(projectIds: string[]) {
-    return this.projectsRepository.find({
-      where: { id: In(projectIds) },
-    });
-  }
+  async findOneById(projectId: string) {
+    const project = await this.projectsRepository.findOne({ where: { id: projectId } });
 
-  findOneById(projectId: string) {
-    return this.projectsRepository.findOne({
-      where: { id: projectId },
-    });
+    if (!project) {
+      throw projectNotFound;
+    }
+
+    return project;
   }
 
   async createProject({
@@ -44,7 +70,7 @@ export class ProjectsService {
       environment,
     });
 
-    return this.projectsRepository.save(project);
+    return await this.projectsRepository.save(project);
   }
 
   async updateProject({
@@ -67,10 +93,11 @@ export class ProjectsService {
       environment,
     });
 
-    return this.projectsRepository.save(project);
+    return await this.projectsRepository.save(project);
   }
 
-  deleteProject({ projectId }: DeleteProjectInput) {
-    return this.projectsRepository.delete(projectId);
+  async deleteProject({ projectId }: DeleteProjectInput) {
+    await this.findOneById(projectId);
+    return await this.projectsRepository.delete(projectId);
   }
 }

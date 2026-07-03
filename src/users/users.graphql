@@ -9,23 +9,28 @@ type User {
   email: String!
   is_verified: Boolean!
   profile: Profile!
-  cvs: [Cv!]
-  department: Department
-  department_name: String
-  position: Position
-  position_name: String
   role: UserRole!
+  department: Department
+  position: Position
+  cvs: [Cv!]
+}
+
+type PaginatedUsers {
+  items: [User!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+  total_pages: Int!
 }
 
 type Query {
-  users: [User!]!
+  users(params: SearchPaginationInput): PaginatedUsers!
   user(userId: ID!): User!
 }
 
 input CreateUserInput {
   auth: AuthInput!
   profile: CreateProfileInput!
-  cvsIds: [String!]!
   departmentId: ID
   positionId: ID
   role: UserRole!
@@ -33,14 +38,20 @@ input CreateUserInput {
 
 input UpdateUserInput {
   userId: ID!
-  cvsIds: [String!]
-  departmentId: ID
-  positionId: ID
-  role: UserRole
+  departmentId: ID!
+  positionId: ID!
+  role: UserRole!
+}
+
+input ChangePasswordInput {
+  oldPassword: String!
+  newPassword: String!
+  confirmPassword: String!
 }
 
 type Mutation {
   createUser(user: CreateUserInput!): User!
   updateUser(user: UpdateUserInput!): User!
   deleteUser(userId: ID!): DeleteResult!
+  changePassword(args: ChangePasswordInput!): User!
 }

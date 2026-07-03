@@ -11,6 +11,6 @@ export class CreateProfileDto implements CreateProfileInput {
 
 export class UpdateProfileDto extends CreateProfileDto implements UpdateProfileInput {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: "userIdIsRequired" })
   userId: string;
 }
