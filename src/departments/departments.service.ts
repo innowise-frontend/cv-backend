@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { DepartmentModel } from "./model/department.model";
@@ -9,14 +9,18 @@ import {
   UpdateDepartmentInput,
 } from "src/graphql";
 import { resolvePagination } from "src/app/util/pagination_logic";
+import { UserModel } from "src/users/model/user.model";
 
 const departmentNotFound = new NotFoundException("departmentNotFound");
+const cannotDeleteDepartmentInUse = new ConflictException("cannotDeleteDepartmentInUse");
 
 @Injectable()
 export class DepartmentsService {
   constructor(
     @InjectRepository(DepartmentModel)
     private readonly departmentRepository: Repository<DepartmentModel>,
+    @InjectRepository(UserModel)
+    private readonly userRepository: Repository<UserModel>,
   ) {}
 
   async findAll(params?: SearchPaginationInput) {
@@ -66,6 +70,15 @@ export class DepartmentsService {
 
   async delete({ departmentId }: DeleteDepartmentInput) {
     await this.findOneById(departmentId);
+
+    const isInUse = await this.userRepository.exists({
+      where: { department: { id: departmentId } },
+    });
+
+    if (isInUse) {
+      throw cannotDeleteDepartmentInUse;
+    }
+
     return await this.departmentRepository.delete(departmentId);
   }
 }
