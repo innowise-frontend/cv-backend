@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { PositionModel } from "./model/position.model";
@@ -9,14 +9,18 @@ import {
   SearchPaginationInput,
 } from "src/graphql";
 import { resolvePagination } from "src/app/util/pagination_logic";
+import { UserModel } from "src/users/model/user.model";
 
 const positionNotFound = new NotFoundException("positionNotFound");
+const cannotDeletePositionInUse = new ConflictException("cannotDeletePositionInUse");
 
 @Injectable()
 export class PositionsService {
   constructor(
     @InjectRepository(PositionModel)
     private readonly positionRepository: Repository<PositionModel>,
+    @InjectRepository(UserModel)
+    private readonly userRepository: Repository<UserModel>,
   ) {}
 
   async findAll(params?: SearchPaginationInput) {
@@ -66,6 +70,15 @@ export class PositionsService {
 
   async delete({ positionId }: DeletePositionInput) {
     await this.findOneById(positionId);
+
+    const isInUse = await this.userRepository.exists({
+      where: { position: { id: positionId } },
+    });
+
+    if (isInUse) {
+      throw cannotDeletePositionInUse;
+    }
+
     return await this.positionRepository.delete(positionId);
   }
 }
