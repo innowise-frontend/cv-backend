@@ -73,7 +73,7 @@ After that, all tables should appear in the database and be accessible via pgAdm
 VITE_GRAPHQL_URL="http://localhost:3001/api/graphql"
 ```
 
-10. Configure Cloudinary in `.env` (image upload/storage):
+10. Configure Cloudinary in `.env.cv_backend` (image upload/storage):
    - Sign up at [Cloudinary](https://cloudinary.com/) (Use your own email address, not the Innowise email address)
    - Open your Dashboard and copy:
      - Cloud Name
@@ -95,7 +95,7 @@ Important:
    - Never share your API Secret.
    - Do not commit `.env` files to Git. Make sure `.env` is listed in `.gitignore`.
 
-11. Configure Browserless in `.env` (PDF generation via Puppeteer):
+11. Configure Browserless in `.env.cv_backend` (PDF generation via Puppeteer):
     - Sign up at [Browserless](https://www.browserless.io/) (Use your own email address, not the Innowise email address)
     - In your dashboard, copy the WebSocket endpoint (usually in this format):
 
@@ -113,7 +113,7 @@ Important:
    - `token` is a secret; do not share it.
    - If the token is leaked, rotate/regenerate it in the Browserless dashboard.
 
-12. Configure SMTP in `.env` (email sending):
+12. Configure SMTP in `.env.cv_backend` (email sending):
    - Enable 2FA (two-factor authentication) on your Google account (use your own email address, not the Innowise email address).
    - Create an app password in [Google App Passwords](https://myaccount.google.com/apppasswords).
      You will get a 16-character password (often shown in four groups), for example:
