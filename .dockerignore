@@ -1,4 +1,5 @@
 /node_modules
 /dist
-
+/docker/.env.cv_postgres
+/docker/.env.cv_backend
 .env
